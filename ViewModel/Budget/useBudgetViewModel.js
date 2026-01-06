@@ -2,6 +2,9 @@
 
 import { useEffect, useState } from "react";
 
+import { calculateDisposableAmount, calculateTotals } from "../../Model/rådighedsbeløb";
+
+
 // Service-laget: henter og gemmer budgettet i AsyncStorage
 import { loadBudget, saveBudget } from "../../Services/storage";
 
@@ -62,10 +65,14 @@ export function useBudgetViewModel() {
 
   // View får kun det, den skal bruge:
   // state + actions
+  const totals = budget ? calculateTotals(budget) : { income: 0, expenses: 0 };
+  const disposable = budget ? calculateDisposableAmount(budget) : 0;
+
   return {
     budget,
     isLoading,
-
+    totals,
+    disposable,
     addFixedIncome: handleAddFixedIncome,
     addFixedExpense: handleAddFixedExpense,
   };

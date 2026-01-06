@@ -45,10 +45,22 @@ export const calculateDisposableAmount = ({
   variableExpenses = [],
 }) => {
   return (
-    
+
     sumValues(fixedIncome) +        // samlede faste indtægter
     sumValues(variableIncome) -     // samlede variable indtægter
     sumValues(fixedExpenses) -      // samlede faste udgifter
     sumValues(variableExpenses)     // samlede variable udgifter
   );
 };
+
+export const calculateTotals = ({
+  fixedIncome = [],
+  variableIncome = [],
+  fixedExpenses = [],
+  variableExpenses = [],
+} = {}) => {
+  const income = sumValues(fixedIncome) + sumValues(variableIncome);
+  const expenses = sumValues(fixedExpenses) + sumValues(variableExpenses);
+  return { income, expenses };
+};
+
