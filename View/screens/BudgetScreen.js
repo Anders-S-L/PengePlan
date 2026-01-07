@@ -1,14 +1,12 @@
 // View/screens/BudgetScreen.js
 import React, { useState } from "react";
-import { View, Text, TextInput } from "react-native";
-import { PrimaryAddButton } from "../PrimaryAddButtons";
+import { View, TextInput } from "react-native";
 import { useBudgetViewModel } from "../../ViewModel/Budget/useBudgetViewModel";
 // UI bygges via design-system komponenter og theme tokens
 import { AppText } from "../../components/UI/AppText";
 import { Button } from "../../components/UI/Button";
 import { Card } from "../../components/UI/Card";
 import { Input } from "../../components/UI/Input";
-import { theme } from "../../styles/theme";
 import { TotalsView } from "../TotalsView";
 
 
@@ -42,31 +40,32 @@ export function BudgetScreen() {
 
     return (
         <View style={{ padding: 16 }}>
-            <Text style={{ fontSize: 24, fontWeight: "700", marginBottom: 30, marginTop: 50 }}>
-                Velkommen til PengePlan
+            <AppText style={{ fontSize: 24, fontWeight: "700", marginBottom: 30, marginTop: 50 }}>
+                Velkommen til PengePlan!
             </AppText>
+            <Card>
+                <TotalsView totals={items} />
+            </Card>
+            <Card>
+                <AppText style={{ marginTop: 20 }}>Navn</AppText>
+                <Input
+                    value={name}
+                    onChangeText={setName}
+                    placeholder="Løn / Husleje"
+                    style={{ borderWidth: 1, padding: 10, borderRadius: 8, marginTop: 15 }}
+                />
 
-            <TotalsView totals={items} />
-
-            <Text style={{ marginTop: 16 }}>Navn</Text>
-            <TextInput
-                value={name}
-                onChangeText={setName}
-                placeholder="Løn / Husleje"
-                style={{ borderWidth: 1, padding: 10, borderRadius: 8, marginTop: 15 }}
-            />
-
-            <Text style={{ marginTop: 12 }}>Beløb</Text>
-            <TextInput
-                value={amount}
-                onChangeText={setAmount}
-                placeholder="fx 12000"
-                keyboardType="numeric"
-                style={{ borderWidth: 1, padding: 10, borderRadius: 8, marginTop: 6 }}
-            />
-
-            <PrimaryAddButton title="Tilføj indtægt" onPress={addFixedIncome} />
-            <PrimaryAddButton title="Tilføj udgift" onPress={addFixedExpense} />
+                <AppText style={{ marginTop: 12 }}>Beløb</AppText>
+                <Input
+                    value={amount}
+                    onChangeText={setAmount}
+                    placeholder="fx 12000"
+                    keyboardType="numeric"
+                    style={{ borderWidth: 1, padding: 10, borderRadius: 8, marginTop: 6 }}
+                />
+            </Card>
+            <Button title="Tilføj indtægt" onPress={addFixedIncome} />
+            <Button title="Tilføj udgift" onPress={addFixedExpense} />
         </View>
     );
 }

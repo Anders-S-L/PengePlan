@@ -10,13 +10,14 @@ type CardProps = ViewProps & {
 export function Card({ padded = true, style, children, ...props }: CardProps) {
   return (
     <View {...props} style={[styles.card, padded && styles.padded, style]}>
-      {children} {}
+      {children}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   card: {
+    marginTop: 12,
     backgroundColor: theme.colors.surface,
     borderRadius: theme.radius.lg,
   },
