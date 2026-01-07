@@ -5,3 +5,9 @@ import OnboardingScreen from "./View/screens/OnboardingScreen";
 export default function App() {
   return <OnboardingScreen />;
 }
+
+
+/*export default function App() {
+return <BudgetOverview />;
+*/
+
