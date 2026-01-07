@@ -29,9 +29,16 @@ const sumValues = (values) => {
 
   // Hvis values er en liste, summeres alle elementer
   if (Array.isArray(values)) {
-    return values.reduce((sum, v) => sum + toNumber(v), 0);
-  }
+    return values.reduce((sum, v) => {
+      // hvis det er et entry-objekt, brug amount
+      if (typeof v === "object" && v !== null && "amount" in v) {
+        return sum + toNumber(v.amount);
+      }
 
+      // fallback: hvis det er et tal eller string
+      return sum + toNumber(v);
+    }, 0);
+  }
   // Hvis values er et enkelt tal eller string
   return toNumber(values);
 };
