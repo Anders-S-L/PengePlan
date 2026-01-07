@@ -1,6 +1,7 @@
 import React from "react";
 import { BudgetScreen } from "./View/screens/BudgetScreen";
+import OnboardingScreen from "./View/screens/OnboardingScreen";
 
 export default function App() {
-  return <BudgetScreen />;
+  return <OnboardingScreen />;
 }
