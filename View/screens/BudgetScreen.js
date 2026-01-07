@@ -3,6 +3,12 @@ import React, { useState } from "react";
 import { View, Text, TextInput } from "react-native";
 import { PrimaryAddButton } from "../PrimaryAddButtons";
 import { useBudgetViewModel } from "../../ViewModel/Budget/useBudgetViewModel";
+// UI bygges via design-system komponenter og theme tokens
+import { AppText } from "../../components/UI/AppText";
+import { Button } from "../../components/UI/Button";
+import { Card } from "../../components/UI/Card";
+import { Input } from "../../components/UI/Input";
+import { theme } from "../../styles/theme";
 import { TotalsView } from "../TotalsView";
 
 
@@ -11,8 +17,8 @@ export function BudgetScreen() {
     const [name, setName] = useState("");
     const [amount, setAmount] = useState("");
 
-    if (vm.isLoading) return <Text>Indlæser...</Text>;
-    if (!vm.budget) return <Text>Ingen budget endnu</Text>;
+    if (vm.isLoading) return <AppText>Indlæser...</AppText>;
+    if (!vm.budget) return <AppText>Ingen budget endnu</AppText>;
 
     const items = [
         { name: "Indtægter", value: vm.totals.income },
@@ -38,7 +44,7 @@ export function BudgetScreen() {
         <View style={{ padding: 16 }}>
             <Text style={{ fontSize: 24, fontWeight: "700", marginBottom: 30, marginTop: 50 }}>
                 Velkommen til PengePlan
-            </Text>
+            </AppText>
 
             <TotalsView totals={items} />
 
