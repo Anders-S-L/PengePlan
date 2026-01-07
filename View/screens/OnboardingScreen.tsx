@@ -1,8 +1,12 @@
 import React from 'react';
+import { useState } from "react";
 import {View, Text, StyleSheet, TouchableOpacity, SafeAreaView} from 'react-native';
 
 export default function OnboardingScreen() {
-    return (
+  const [currentStep, setCurrentStep] = useState(0);
+  const totalSteps = 4;
+
+  return (
         <SafeAreaView style={styles.container}>
             <View style={styles.card}>
                 {/* Placeholder for onboarding content */}
@@ -28,9 +32,30 @@ export default function OnboardingScreen() {
                 </View>
 
                 {/* CTA */}
-                <TouchableOpacity style={styles.button}>
-                    <Text style={styles.buttonText}>Kom i gang   →</Text>
+                <TouchableOpacity 
+                style={styles.button} onPress={() => {
+                  if (currentStep < totalSteps - 1) {
+                    setCurrentStep((prev) => prev + 1);
+                }
+              }}
+              >
+                    <Text style={styles.buttonText}>
+                        {currentStep === totalSteps - 1 ? "Næste" : "Kom i gang"}
+                    </Text>
                 </TouchableOpacity>
+
+                {/* Step Indicators */}
+                <View style={styles.dotContainer}>
+                  {Array.from({ length: totalSteps }).map((_, index) => (
+                    <View
+                      key={index}
+                      style={[
+                        styles.dot,
+                        currentStep === index ? styles.activeDot : null,
+                      ]}
+                      />
+                  ))}
+                </View>
             </View>
         </SafeAreaView>
     );
@@ -50,25 +75,23 @@ function Step({number, color, title, text}: {number: string; color: string; titl
     );
 }
 
+
+
 const styles = StyleSheet.create({
     container: {
     flex: 1,
     backgroundColor: "#A855F7", // purple background
-    justifyContent: "center",
-    paddingHorizontal: 16,
-    paddingTop: 48
+    paddingHorizontal: 20,
+    paddingTop: 32,
+    paddingBottom: 16,
   },
-  stepsContainer: {
-  backgroundColor: "rgba(79, 124, 255, 0.08)", // 👈 utydelig blå
-  borderRadius: 16,
-  padding: 16,
-  marginTop: 16,
-},
-
   card: {
     backgroundColor: "#F9FAFB",
     borderRadius: 28,
     padding: 20,
+    flex: 1,
+    marginHorizontal: 10,
+    marginBottom: 0,
   },
   iconCircle: {
     alignSelf: "center",
@@ -78,7 +101,7 @@ const styles = StyleSheet.create({
     borderRadius: 28,
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: 16,
+    marginBottom: 20,
   },
   iconText: {
     fontSize: 24,
@@ -87,14 +110,22 @@ const styles = StyleSheet.create({
     fontSize: 22,
     fontWeight: "700",
     textAlign: "center",
-    marginBottom: 8,
+    marginBottom: 10,
+    color: "#111827",
   },
   subtitle: {
     fontSize: 14,
+    lineHeight: 20,
     textAlign: "center",
     color: "#6B7280",
     marginBottom: 24,
   },
+  stepsContainer: {
+  backgroundColor: "rgba(79, 124, 255, 0.08)", // 👈 utydelig blå
+  borderRadius: 16,
+  padding: 16,
+  marginTop: 4,
+ },
   steps: {
     gap: 16,
   },
@@ -112,11 +143,13 @@ const styles = StyleSheet.create({
   },
   stepNumber: {
     color: "white",
+    fontSize: 13,
     fontWeight: "700",
   },
   stepTitle: {
     fontWeight: "600",
-    fontSize: 15
+    fontSize: 15,
+    color: "#111827",
   },
   stepText: {
     fontSize: 13,
@@ -126,14 +159,30 @@ const styles = StyleSheet.create({
   button: {
     backgroundColor: "#4F7CFF",
     borderRadius: 12,
-    paddingVertical: 10,
-    paddingHorizontal: 16,
+    paddingVertical: 12,
     alignItems: "center",
+    marginTop: "auto",
   },
   buttonText: {
     color: "#FFFFFF",
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: "700",
-    textAlign: "center",
+  },
+
+  dotContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    marginTop: 16,
+  },
+  dot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: "#D1D5DB",
+    marginHorizontal: 4,
+  },
+  activeDot: {
+    width: 12,
+    backgroundColor: "#4F7CFF",
   },
 });
