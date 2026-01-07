@@ -9,7 +9,7 @@ export const theme = {
   colors: {
     // --- Surfaces (baggrunde og flader) ---
     background: "#FFFFFF",   // App-baggrund
-    surface: "#FFFFFF",      // Cards, modals, inputs
+    surface: "#DBEAFE",      // Cards, modals, inputs
     labelBg: "#F7F7F7",      // Label-baggrund (fx input labels)
     divider: "#E5E7EB",      // Skillelinjer
 

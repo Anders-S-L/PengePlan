@@ -1,7 +1,11 @@
 // View/TotalsView.tsx
 import React from "react";
-import { View, Text, StyleSheet } from "react-native";
-import { colors, spacing, radius } from "../styles/theme";
+import { StyleSheet, View } from "react-native";
+
+// Design-system komponenter og tokens
+import { AppText } from "../components/UI/AppText";
+import { Card } from "../components/UI/Card";
+import { theme } from "../styles/theme";
 
 type TotalItem = {
     name: string;
@@ -14,7 +18,7 @@ type Props = {
 
 export function TotalsView({ totals }: Props) {
     return (
-        <View style={styles.card}>
+        <Card style={styles.card}>
             {totals.map((item, index) => {
                 const isPositive = item.value > 0;
                 const isNegative = item.value < 0;
@@ -27,9 +31,9 @@ export function TotalsView({ totals }: Props) {
                             index !== totals.length - 1 && styles.divider,
                         ]}
                     >
-                        <Text style={styles.label}>{item.name}</Text>
+                        <AppText style={styles.label}>{item.name}</AppText>
 
-                        <Text
+                        <AppText
                             style={[
                                 styles.value,
                                 isPositive && styles.positive,
@@ -38,43 +42,37 @@ export function TotalsView({ totals }: Props) {
                         >
                             {item.value > 0 ? "+" : ""}
                             {item.value.toLocaleString("da-DK")} kr.
-                        </Text>
+                        </AppText>
                     </View>
                 );
             })}
-        </View>
+        </Card>
     );
 }
 
 const styles = StyleSheet.create({
-    card: {
-        backgroundColor: colors.backgroundCard,
-        borderRadius: radius.md,
-        padding: spacing.md,
-    },
+    card: {},
     row: {
         flexDirection: "row",
         justifyContent: "space-between",
         alignItems: "center",
-        paddingVertical: spacing.sm,
+        paddingVertical: theme.spacing.sm,
     },
     divider: {
         borderBottomWidth: 1,
-        borderBottomColor: colors.divider,
+        borderBottomColor: theme.colors.divider,
     },
     label: {
-        fontSize: 15,
-        color: colors.textSecondary,
+        color: theme.colors.textSecondary,
     },
     value: {
-        fontSize: 16,
         fontWeight: "600",
-        color: colors.textPrimary,
+        color: theme.colors.textPrimary,
     },
     positive: {
-        color: colors.positive,
+        color: theme.colors.success,
     },
     negative: {
-        color: colors.negative,
+        color: theme.colors.danger,
     },
 });
