@@ -17,7 +17,7 @@ type Probs = {
   onDone: () => void;
 }
 
-export default function OnboardingScreen() {
+export default function OnboardingScreen({ onDone }: Probs) {
   const ob = useOnboardingViewModel();
   const vm = useBudgetViewModel();
 
@@ -63,7 +63,9 @@ export default function OnboardingScreen() {
   }
 
   function handleNext() {
-    if (ob.isLastStep()) ob.onDone();
+    if (ob.isLastStep()) {
+      onDone();
+    }
     else {
       ob.nextStep();
     }
@@ -110,8 +112,8 @@ export default function OnboardingScreen() {
           <AppText style={styles.subtitle}>
             Tilføj din løn og andre faste indtægter.
           </AppText>
-
           <Card style={styles.innerCard}>
+            <AppText>Navn</AppText>
             <Input value={incomeName} onChangeText={setIncomeName} placeholder="Løn" />
 
             <AppText style={{ marginTop: theme.spacing.md }}>Beløb</AppText>

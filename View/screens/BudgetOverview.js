@@ -10,13 +10,13 @@ export function BudgetOverview() {
     // Henter budgetdata fra view modellen
     const vm = useBudgetViewModel();
 
-    if (vm.isLoading) return <Text>Indlaeser...</Text>;
+    if (vm.isLoading) return <Text>Indlæser...</Text>;
     if (!vm.budget) return <Text>Ingen budget endnu</Text>;
 
     // UI-liste til maanedsoverblikket
     const items = [
-        { name: "Maanedlig indkomst", value: vm.totals.income },
-        { name: "Faste omkostninger", value: 0 },
+        { name: "Månedlig indkomst", value: vm.totals.income },
+        { name: "Faste omkostninger", value: -vm.totals.fixedExpenses },
         { name: "Variable udgifter", value: 0 },
         { name: "Luksus udgifter", value: 0 },
         { name: "Total brugt", value: -vm.totals.expenses },
@@ -34,13 +34,13 @@ export function BudgetOverview() {
 
             {/* Rådighedsbeløbet */}
             <View style={styles.balanceSection}>
-                <Text style={styles.label}>Raadighedsbeloeb</Text>
+                <Text style={styles.label}>Rådighedsbeloeb</Text>
                 <View style={styles.balanceRow}>
                     <View style={styles.balanceLeft}>
                         <View style={styles.editCircle}>
                             <Text style={styles.editIcon}>✎</Text>
                         </View>
-                        <Text style={styles.balanceAmount}>-2.500 kr.</Text>
+                        <Text style={styles.balanceAmount}>2500. kr.</Text>
                     </View>
                     <Text style={styles.calendarIcon}>📅</Text>
                 </View>
