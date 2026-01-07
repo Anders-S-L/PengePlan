@@ -1,97 +1,251 @@
+
 import React from 'react';
-import { useState } from "react";
-import {View, Text, StyleSheet, TouchableOpacity, SafeAreaView} from 'react-native';
+import { useOnboardingViewModel } from '../../ViewModel/useOnboardingViewModel';
+import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView } from 'react-native';
+import { useState } from 'react';
+
+
+import { Card } from "../../components/UI/Card";
+import { AppText } from "../../components/UI/AppText";
+import { Button } from "../../components/UI/Button";
+import { theme } from "../../styles/theme";
+import { Input } from "../../components/UI/Input";
+import { useBudgetViewModel } from '../../ViewModel/Budget/useBudgetViewModel';
+
+
+type Probs = {
+  onDone: () => void;
+}
 
 export default function OnboardingScreen() {
-  const [currentStep, setCurrentStep] = useState(0);
-  const totalSteps = 4;
+  const ob = useOnboardingViewModel();
+  const vm = useBudgetViewModel();
 
-  return (
-        <SafeAreaView style={styles.container}>
-            <View style={styles.card}>
-                {/* Placeholder for onboarding content */}
-                <View style={styles.iconCircle}>
-                    <Text style={styles.iconText}>🌟</Text>
-                </View>
+  const [incomeName, setIncomeName] = useState("");
+  const [incomeAmount, setIncomeAmount] = useState("");
 
-                {/* Title */}
-                <Text style={styles.title}>Velkommen til PengePlan!</Text>
+  const [expenseName, setExpenseName] = useState("");
+  const [expenseAmount, setExpenseAmount] = useState("");
 
-                {/* Subtitle */}
-                <Text style={styles.subtitle}>
-                    Lad os opsætte dit månedlige budget samme. Det tager kun et øjeblik
-                </Text>
-
-                {/* Steps */}
-                <View style={styles.stepsContainer}>
-                <View style={styles.steps}>
-                    <Step number="1" color="#4F7CFF" title="Faste indtægter" text="Indtast din løn og andre faste indtægter" />
-                    <Step number="2" color="#9B5CFF" title="Faste omkostninger" text="Tilføj husleje, abonnementer og andre faste udgifter" />
-                    <Step number="3" color="#4CD964" title="Klar til at bruge!" text="Dit budget er sat op og klar hver måned" />
-                </View>
-                </View>
-
-                {/* CTA */}
-                <TouchableOpacity 
-                style={styles.button} onPress={() => {
-                  if (currentStep < totalSteps - 1) {
-                    setCurrentStep((prev) => prev + 1);
-                }
-              }}
-              >
-                    <Text style={styles.buttonText}>
-                        {currentStep === totalSteps - 1 ? "Næste" : "Kom i gang"}
-                    </Text>
-                </TouchableOpacity>
-
-                {/* Step Indicators */}
-                <View style={styles.dotContainer}>
-                  {Array.from({ length: totalSteps }).map((_, index) => (
-                    <View
-                      key={index}
-                      style={[
-                        styles.dot,
-                        currentStep === index ? styles.activeDot : null,
-                      ]}
-                      />
-                  ))}
-                </View>
-            </View>
-        </SafeAreaView>
-    );
-}
-
-function Step({number, color, title, text}: {number: string; color: string; title: string; text: string}) {
+  const Step = ({ number, color, title, text }) => {
     return (
-        <View style={styles.step}>
-            <View style={[styles.stepCircle, {backgroundColor: color}]}>
-                <Text style={styles.stepNumber}>{number}</Text>
-            </View>
-            <View>
-                <Text style={styles.stepTitle}>{title}</Text>
-                <Text style={styles.stepText}>{text}</Text>
-            </View>
+      <View style={[styles.stepsContainer, { borderColor: color }]}>
+        <View style={[styles.stepCircle, { backgroundColor: color }]}>
+          <Text style={styles.stepNumber}>{number}</Text>
         </View>
+        <View style={styles.stepContent}>
+          <Text style={styles.stepTitle}>{title}</Text>
+          <Text style={styles.stepText}>{text}</Text>
+        </View>
+      </View>
     );
+  };
+
+  const parseAmount = (s: string) => {
+    const n = Number(s.replace(",", ".").trim())
+    return Number.isFinite(n) ? n : null;
+  }
+
+  const ctaLabel = ob.isLastStep() ? "Kom i gang" : "Næste";
+
+  async function addFixedIncome() {
+    if (!incomeName || !incomeAmount) return;
+    await vm.addFixedIncome({ incomeName, incomeAmount: parseFloat(incomeAmount) });
+    setIncomeName("");
+    setIncomeAmount("");
+  }
+
+  async function addFixedExpense() {
+    if (!expenseName || !expenseAmount) return;
+    await vm.addFixedExpense({ expenseName, expenseAmount: parseFloat(expenseAmount) });
+    setExpenseName("");
+    setExpenseAmount("");
+  }
+
+  function handleNext() {
+    if (ob.isLastStep()) ob.onDone();
+    else {
+      ob.nextStep();
+    }
+  }
+
+
+
+  function stepContent() {
+
+    // step 0 velkomst
+
+    if (ob.currentStep === 0) {
+      return (
+        <>
+          <View style={styles.iconCircle}>
+            <AppText style={styles.iconText}>🌟</AppText>
+          </View>
+
+          <AppText variant="h4" style={styles.title}>
+            Velkommen til PengePlan!
+          </AppText>
+
+          <AppText style={styles.subtitle}>
+            Lad os opsætte dit månedlige budget sammen. Det tager kun et øjeblik.
+          </AppText>
+
+          <View style={styles.steps}>
+            <Step number="1" color="#4F7CFF" title="Faste indtægter" text="Indtast din løn og andre faste indtægter" />
+            <Step number="2" color="#9B5CFF" title="Faste omkostninger" text="Tilføj husleje, abonnementer og andre faste udgifter" />
+            <Step number="3" color="#4CD964" title="Klar til at bruge!" text="Dit budget er sat op og klar hver måned" />
+          </View>
+        </>
+      );
+    }
+
+
+    if (ob.currentStep === 1) {
+      return (
+        <>
+          <AppText variant="h4" style={styles.title}>
+            Faste indtægter
+          </AppText>
+
+          <AppText style={styles.subtitle}>
+            Tilføj din løn og andre faste indtægter.
+          </AppText>
+
+          <Card style={styles.innerCard}>
+            <Input value={incomeName} onChangeText={setIncomeName} placeholder="Løn" />
+
+            <AppText style={{ marginTop: theme.spacing.md }}>Beløb</AppText>
+            <Input
+              value={incomeAmount}
+              onChangeText={setIncomeAmount}
+              keyboardType="numeric"
+              placeholder="fx 20000"
+            />
+
+            <View style={{ marginTop: theme.spacing.lg }}>
+              <Button title="Tilføj indtægt" onPress={addFixedIncome} />
+            </View>
+          </Card>
+
+          {/* Lille liste (valgfrit men fedt) */}
+          <View style={{ marginTop: theme.spacing.lg }}>
+            <AppText style={{ fontWeight: "600" }}>Tilføjet:</AppText>
+            {vm.budget?.fixedIncome?.map((x, i) => (
+              <AppText key={i}>
+                {x.name}: {Number(x.amount).toLocaleString("da-DK")} kr.
+              </AppText>
+            ))}
+          </View>
+        </>
+      );
+    }
+    // Step 2: faste omkostninger
+    if (ob.currentStep === 2) {
+      return (
+        <>
+          <AppText variant="h4" style={styles.title}>
+            Faste omkostninger
+          </AppText>
+
+          <AppText style={styles.subtitle}>
+            Tilføj husleje, abonnementer og andre faste udgifter.
+          </AppText>
+
+          <Card style={styles.innerCard}>
+            <AppText>Navn</AppText>
+            <Input value={expenseName} onChangeText={setExpenseName} placeholder="Husleje" />
+
+            <AppText style={{ marginTop: theme.spacing.md }}>Beløb</AppText>
+            <Input
+              value={expenseAmount}
+              onChangeText={setExpenseAmount}
+              keyboardType="numeric"
+              placeholder="fx 8000"
+            />
+
+            <View style={{ marginTop: theme.spacing.lg }}>
+              <Button title="Tilføj udgift" onPress={addFixedExpense} />
+            </View>
+          </Card>
+
+          <View style={{ marginTop: theme.spacing.lg }}>
+            <AppText style={{ fontWeight: "600" }}>Tilføjet:</AppText>
+            {vm.budget?.fixedExpenses?.map((x, i) => (
+              <AppText key={i}>
+                {x.name}: {Number(x.amount).toLocaleString("da-DK")} kr.
+              </AppText>
+            ))}
+          </View>
+        </>
+      );
+    }
+    // Step 3: klar
+    return (
+      <>
+        <AppText variant="h4" style={styles.title}>
+          Klar til at bruge!
+        </AppText>
+
+        <AppText style={styles.subtitle}>
+          Dit budget er sat op. Tryk “Kom i gang” for at se dit overblik.
+        </AppText>
+
+        <Card style={styles.innerCard}>
+          <AppText>Faste indtægter: {vm.totals.income.toLocaleString("da-DK")} kr.</AppText>
+          <AppText>Faste udgifter: {vm.totals.expenses.toLocaleString("da-DK")} kr.</AppText>
+          <AppText style={{ marginTop: theme.spacing.md, fontWeight: "700" }}>
+            Rådighedsbeløb: {vm.disposable.toLocaleString("da-DK")} kr.
+          </AppText>
+        </Card>
+      </>
+    );
+  }
+  if (vm.isLoading) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <AppText>Indlæser…</AppText>
+      </SafeAreaView>
+    );
+  }
+  return (
+    <SafeAreaView style={styles.container}>
+      <Card style={styles.outerCard} padded>
+        {stepContent()}
+
+        <View style={{ marginTop: "auto" }}>
+          <Button title={ctaLabel} onPress={handleNext} />
+
+          <View style={styles.dotContainer}>
+            {Array.from({ length: ob.totalSteps }).map((_, index) => (
+              <View
+                key={index}
+                style={[styles.dot, ob.currentStep === index && styles.activeDot]}
+              />
+            ))}
+          </View>
+        </View>
+      </Card>
+    </SafeAreaView>
+  );
 }
-
-
 
 const styles = StyleSheet.create({
-    container: {
+  container: {
     flex: 1,
-    backgroundColor: "#A855F7", // purple background
-    paddingHorizontal: 20,
-    paddingTop: 32,
-    paddingBottom: 16,
+    backgroundColor: "#A855F7",
+    paddingHorizontal: theme.spacing.lg,
+    paddingTop: theme.spacing.xl,
+    paddingBottom: theme.spacing.lg,
   },
-  card: {
-    backgroundColor: "#F9FAFB",
-    borderRadius: 28,
-    padding: 20,
+  outerCard: {
     flex: 1,
-    marginHorizontal: 10,
-    marginBottom: 0,
+    borderRadius: 28,
+    backgroundColor: theme.colors.background,
+  },
+  innerCard: {
+    marginTop: theme.spacing.lg,
+    backgroundColor: theme.colors.surface,
+    borderRadius: theme.radius.lg,
   },
   iconCircle: {
     alignSelf: "center",
@@ -101,31 +255,42 @@ const styles = StyleSheet.create({
     borderRadius: 28,
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: 20,
+    marginBottom: theme.spacing.lg,
   },
-  iconText: {
-    fontSize: 24,
-  },
-  title: {
-    fontSize: 22,
-    fontWeight: "700",
-    textAlign: "center",
-    marginBottom: 10,
-    color: "#111827",
-  },
+  iconText: { fontSize: 24 },
+  title: { textAlign: "center", marginBottom: theme.spacing.sm },
   subtitle: {
-    fontSize: 14,
-    lineHeight: 20,
     textAlign: "center",
-    color: "#6B7280",
-    marginBottom: 24,
+    color: theme.colors.textSecondary,
+  },
+  dotContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    marginTop: theme.spacing.lg,
+  },
+  dot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: theme.colors.divider,
+    marginHorizontal: 4,
+  },
+  activeDot: {
+    width: 12,
+    backgroundColor: "#4F7CFF",
   },
   stepsContainer: {
-  backgroundColor: "rgba(79, 124, 255, 0.08)", // 👈 utydelig blå
-  borderRadius: 16,
-  padding: 16,
-  marginTop: 4,
- },
+    backgroundColor: "rgba(79, 124, 255, 0.08)", // 👈 utydelig blå
+    borderRadius: 16,
+    padding: 16,
+    marginTop: 4,
+    flexDirection: "row",
+    alignItems: "center",
+
+  },
+  stepContent: {
+    flexDirection: "column",
+  },
   steps: {
     gap: 16,
   },
@@ -140,6 +305,7 @@ const styles = StyleSheet.create({
     borderRadius: 13,
     alignItems: "center",
     justifyContent: "center",
+    marginRight: 8,
   },
   stepNumber: {
     color: "white",
@@ -156,33 +322,8 @@ const styles = StyleSheet.create({
     color: "#6B7280",
     marginTop: 2,
   },
-  button: {
-    backgroundColor: "#4F7CFF",
-    borderRadius: 12,
-    paddingVertical: 12,
-    alignItems: "center",
-    marginTop: "auto",
-  },
-  buttonText: {
-    color: "#FFFFFF",
-    fontSize: 16,
-    fontWeight: "700",
-  },
-
-  dotContainer: {
-    flexDirection: "row",
-    justifyContent: "center",
-    marginTop: 16,
-  },
-  dot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: "#D1D5DB",
-    marginHorizontal: 4,
-  },
-  activeDot: {
-    width: 12,
-    backgroundColor: "#4F7CFF",
-  },
 });
+
+
+
+

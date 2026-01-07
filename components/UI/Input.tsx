@@ -6,10 +6,11 @@ import { AppText } from "./AppText";
 type InputState = "default" | "focus" | "error";
 
 type InputProps = {
-  label: string;
+  label?: string;
   placeholder?: string;
   value: string;
   onChangeText: (text: string) => void;
+  keyboardType?: string;
   state?: InputState;
 };
 
@@ -25,8 +26,8 @@ export function Input({
     state === "error"
       ? theme.colors.borderError
       : state === "focus"
-      ? theme.colors.borderFocus
-      : theme.colors.border;
+        ? theme.colors.borderFocus
+        : theme.colors.border;
 
   return (
     <View style={styles.wrapper}>
