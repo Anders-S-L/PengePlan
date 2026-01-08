@@ -50,14 +50,14 @@ export default function OnboardingScreen({ onDone }: Probs) {
 
   async function addFixedIncome() {
     if (!incomeName || !incomeAmount) return;
-    await vm.addFixedIncome({ incomeName, incomeAmount: parseFloat(incomeAmount) });
+    await vm.addFixedIncome({ name: incomeName, amount: parseFloat(incomeAmount) });
     setIncomeName("");
     setIncomeAmount("");
   }
 
   async function addFixedExpense() {
     if (!expenseName || !expenseAmount) return;
-    await vm.addFixedExpense({ expenseName, expenseAmount: parseFloat(expenseAmount) });
+    await vm.addFixedExpense({ name: expenseName, amount: parseFloat(expenseAmount) });
     setExpenseName("");
     setExpenseAmount("");
   }

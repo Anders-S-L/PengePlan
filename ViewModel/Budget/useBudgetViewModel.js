@@ -62,17 +62,40 @@ export function useBudgetViewModel() {
     const next = addFixedExpense(budget, entry);
     await commit(next);
   }
+  function toNumber(v) {
+    if (v === null || v === undefined) return 0;
+    if (typeof v === "string") {
+      const normalized = v.replace(/\./g, "").replace(",", ".").trim();
+      const n = Number(normalized);
+      return Number.isFinite(n) ? n : 0;
+    }
+    const n = Number(v);
+    return Number.isFinite(n) ? n : 0;
+  }
+
+  function sumAmounts(entries = []) {
+    return entries.reduce((sum, e) => sum + toNumber(e?.amount), 0);
+  }
 
   // View får kun det, den skal bruge:
   // state + actions
   const totals = budget ? calculateTotals(budget) : { income: 0, expenses: 0 };
   const disposable = budget ? calculateDisposableAmount(budget) : 0;
 
+  const fixedIncomeTotal = budget ? sumAmounts(budget.fixedIncome) : 0;
+  const fixedExpensesTotal = budget ? sumAmounts(budget.fixedExpenses) : 0;
+  const variableIncomeTotal = budget ? sumAmounts(budget.variableIncome) : 0;
+  const variableExpensesTotal = budget ? sumAmounts(budget.variableExpenses) : 0;
+
   return {
     budget,
     isLoading,
     totals,
     disposable,
+    fixedIncomeTotal,
+    fixedExpensesTotal,
+    variableIncomeTotal,
+    variableExpensesTotal,
     addFixedIncome: handleAddFixedIncome,
     addFixedExpense: handleAddFixedExpense,
   };

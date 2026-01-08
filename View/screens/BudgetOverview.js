@@ -16,12 +16,13 @@ export function BudgetOverview() {
     // UI-liste til maanedsoverblikket
     const items = [
         { name: "Månedlig indkomst", value: vm.totals.income },
-        { name: "Faste omkostninger", value: -vm.totals.fixedExpenses },
-        { name: "Variable udgifter", value: 0 },
+        { name: "Faste omkostninger", value: -vm.fixedExpensesTotal },
+        { name: "Variable udgifter", value: -vm.variableExpensesTotal },
         { name: "Luksus udgifter", value: 0 },
         { name: "Total brugt", value: -vm.totals.expenses },
         { name: "Raadighedsbeloeb", value: vm.disposable },
     ];
+
 
     return (
         <ScrollView contentContainerStyle={styles.container}>
