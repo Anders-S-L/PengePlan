@@ -17,7 +17,7 @@ export function BudgetOverview({ onAddExpense }) {
     const spentAmount = Math.abs(variableSpent);
     const hasSpent = spentAmount > 0;
     const spentAmountLabel = spentAmount.toLocaleString("da-DK", {
-        minimumFractionDigits: 9,
+        minimumFractionDigits: 2,
         maximumFractionDigits: 2,
     });
 
