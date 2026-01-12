@@ -4,6 +4,16 @@ const toNumber = (value) => {
   // Hvis værdien ikke findes, betragtes den som 0
   if (value === null || value === undefined) return 0;
 
+  // Hvis værdien er et objekt (fx { amount: 123 })
+  if (typeof value === "object") {
+    if ("amount" in value) {
+      return toNumber(value.amount);
+    }
+    if ("value" in value) {
+      return toNumber(value.value);
+    }
+  }
+
   // Hvis værdien er en string (fx "123,45")
   if (typeof value === "string") {
     // Erstat komma med punktum og fjern mellemrum
@@ -36,6 +46,17 @@ const sumValues = (values) => {
   return toNumber(values);
 };
 
+
+// Beregner faste og variable udgifter separat
+export const calculateExpenseBreakdown = ({
+                                            fixedExpenses = [],
+                                            variableExpenses = [],
+                                          } = {}) => {
+  return {
+    fixed: sumValues(fixedExpenses),
+    variable: sumValues(variableExpenses),
+  };
+};
 // Beregner rådighedsbeløbet ud fra indtægter og udgifter
 // fixedIncome + variableIncome - fixedExpenses - variableExpenses
 export const calculateDisposableAmount = ({
@@ -63,4 +84,3 @@ export const calculateTotals = ({
   const expenses = sumValues(fixedExpenses) + sumValues(variableExpenses);
   return { income, expenses };
 };
-

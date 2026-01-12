@@ -13,14 +13,22 @@ export function BudgetOverview({ onAddExpense }) {
     if (vm.isLoading) return <Text>Indlaeser...</Text>;
     if (!vm.budget) return <Text>Ingen budget endnu</Text>;
 
+    const variableSpent = vm.expenseBreakdown.variable;
+    const spentAmount = Math.abs(variableSpent);
+    const hasSpent = spentAmount > 0;
+    const spentAmountLabel = spentAmount.toLocaleString("da-DK", {
+        minimumFractionDigits: 9,
+        maximumFractionDigits: 2,
+    });
+
     // UI-liste til maanedsoverblikket
     const items = [
-        { name: "Maanedlig indkomst", value: vm.totals.income },
-        { name: "Faste omkostninger", value: 0 },
-        { name: "Variable udgifter", value: 0 },
+        { name: "Månedlig indkomst", value: vm.totals.income },
+        { name: "Faste omkostninger", value: -vm.expenseBreakdown.fixed },
+        { name: "Variable udgifter", value: -variableSpent },
         { name: "Luksus udgifter", value: 0 },
         { name: "Total brugt", value: -vm.totals.expenses },
-        { name: "Raadighedsbeloeb", value: vm.disposable },
+        { name: "Rådighedsbeløb", value: vm.disposable },
     ];
 
     return (
@@ -60,7 +68,29 @@ export function BudgetOverview({ onAddExpense }) {
 
             {/* Cirkeldiagram OBS: Skal ændres til den rigtige model, det her er bare Billede*/}
             <View style={styles.circleSection}>
-                <View style={styles.circle} />
+                <View
+                    style={[
+                        styles.circle,
+                        hasSpent ? styles.circleSpent : styles.circleUnused,
+                    ]}
+                >
+                    <Text
+                        style={[
+                            styles.circleLabel,
+                            hasSpent && styles.circleTextSpent,
+                        ]}
+                    >
+                        brugt
+                    </Text>
+                    <Text
+                        style={[
+                            styles.circleAmount,
+                            hasSpent && styles.circleTextSpent,
+                        ]}
+                    >
+                        {spentAmountLabel}
+                    </Text>
+                </View>
                 <View style={styles.legendRow}>
                     <View style={styles.legendItem}>
                         <View style={styles.legendDot} />
@@ -202,7 +232,30 @@ const styles = StyleSheet.create({
         width: 120,
         height: 120,
         borderRadius: 60,
-        borderWidth: 6,
+        borderWidth: 7,
+        alignItems: "center",
+        justifyContent: "center",
+        gap: 2,
+        borderColor: "#BFC3C7",
+    },
+    circleUnused: {
+        backgroundColor: "#E5E7EA",
+    },
+    circleSpent: {
+        backgroundColor: "#7A7E84",
+    },
+    circleLabel: {
+        fontSize: 12,
+        color: "#2D2F33",
+        textTransform: "lowercase",
+    },
+    circleAmount: {
+        fontSize: 16,
+        fontWeight: "700",
+        color: "#2D2F33",
+    },
+    circleTextSpent: {
+        color: "#5d5959"
     },
     legendRow: {
         flexDirection: "row",
