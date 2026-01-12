@@ -6,7 +6,7 @@ import { View, Text, StyleSheet, ScrollView, Pressable } from "react-native";
 import { useBudgetViewModel } from "../../ViewModel/Budget/useBudgetViewModel";
 import { TotalsView } from "../TotalsView";
 
-export function BudgetOverview({ onAddExpense }) {
+export function BudgetOverview({ onAddExpense, onAddIncome }) {
     // Henter budgetdata fra view modellen
     const vm = useBudgetViewModel();
 
@@ -119,6 +119,13 @@ export function BudgetOverview({ onAddExpense }) {
 
             {/* Primar knap */}
             <View style={styles.footer}>
+                <Pressable
+                    accessibilityRole="button"
+                    onPress={onAddIncome}
+                    style={[styles.primaryButton, styles.secondaryButton]}
+                >
+                    <Text style={styles.secondaryButtonText}>+  Ny indtaegt</Text>
+                </Pressable>
                 <Pressable
                     accessibilityRole="button"
                     onPress={onAddExpense}
@@ -318,6 +325,15 @@ const styles = StyleSheet.create({
         borderWidth: 1,
     },
     primaryButtonText: {
+        fontSize: 14,
+        fontWeight: "700",
+    },
+    secondaryButton: {
+        borderColor: "#2F70FF",
+        backgroundColor: "#FFFFFF",
+    },
+    secondaryButtonText: {
+        color: "#2F70FF",
         fontSize: 14,
         fontWeight: "700",
     },
