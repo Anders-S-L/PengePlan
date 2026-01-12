@@ -1,12 +1,12 @@
 ﻿// Dette er vores forside skaerm der viser budgetoversigten.
 
 import React from "react";
-import { View, Text, StyleSheet, ScrollView } from "react-native";
+import { View, Text, StyleSheet, ScrollView, Pressable } from "react-native";
 
 import { useBudgetViewModel } from "../../ViewModel/Budget/useBudgetViewModel";
 import { TotalsView } from "../TotalsView";
 
-export function BudgetOverview() {
+export function BudgetOverview({ onAddExpense }) {
     // Henter budgetdata fra view modellen
     const vm = useBudgetViewModel();
 
@@ -89,9 +89,13 @@ export function BudgetOverview() {
 
             {/* Primar knap */}
             <View style={styles.footer}>
-                <View style={styles.primaryButton}>
+                <Pressable
+                    accessibilityRole="button"
+                    onPress={onAddExpense}
+                    style={styles.primaryButton}
+                >
                     <Text style={styles.primaryButtonText}>+  Ny udgift</Text>
-                </View>
+                </Pressable>
             </View>
         </ScrollView>
     );
