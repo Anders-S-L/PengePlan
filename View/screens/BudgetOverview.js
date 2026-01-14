@@ -2,13 +2,18 @@
 
 import React from "react";
 import { View, Text, StyleSheet, ScrollView } from "react-native";
-
+import { useState } from "react";
 import { useBudgetViewModel } from "../../ViewModel/Budget/useBudgetViewModel";
 import { TotalsView } from "../TotalsView";
+import { AddVariableExpenseModal } from "../addVariableExpenseModal";
+import { Button } from "../../components/UI/Button";
+
 
 export function BudgetOverview() {
     // Henter budgetdata fra view modellen
     const vm = useBudgetViewModel();
+    const [showModal, setShowModal] = useState(false);
+
 
     if (vm.isLoading) return <Text>Indlæser...</Text>;
     if (!vm.budget) return <Text>Ingen budget endnu</Text>;
@@ -18,11 +23,11 @@ export function BudgetOverview() {
         { name: "Månedlig indkomst", value: vm.totals.income },
         { name: "Faste omkostninger", value: -vm.fixedExpensesTotal },
         { name: "Variable udgifter", value: -vm.variableExpensesTotal },
-        { name: "Luksus udgifter", value: 0 },
+        { name: "Luksus udgifter", value: -vm.luxuryExpensesTotal },
         { name: "Total brugt", value: -vm.totals.expenses },
-        { name: "Raadighedsbeloeb", value: vm.disposable },
+        { name: "Rådighedsbeløb", value: vm.disposable },
     ];
-
+    const råd = vm.disposable + " kr.";
 
     return (
         <ScrollView contentContainerStyle={styles.container}>
@@ -35,13 +40,13 @@ export function BudgetOverview() {
 
             {/* Rådighedsbeløbet */}
             <View style={styles.balanceSection}>
-                <Text style={styles.label}>Rådighedsbeloeb</Text>
+                <Text style={styles.label}>Rådighedsbeløb</Text>
                 <View style={styles.balanceRow}>
                     <View style={styles.balanceLeft}>
                         <View style={styles.editCircle}>
                             <Text style={styles.editIcon}>✎</Text>
                         </View>
-                        <Text style={styles.balanceAmount}>2500. kr.</Text>
+                        <Text style={styles.balanceAmount}>{råd}</Text>
                     </View>
                     <Text style={styles.calendarIcon}>📅</Text>
                 </View>
@@ -82,7 +87,7 @@ export function BudgetOverview() {
 
             {/* Månedsoversigt */}
             <View style={styles.section}>
-                <Text style={styles.sectionTitle}>Maanedsoversigt</Text>
+                <Text style={styles.sectionTitle}>Månedsoversigt</Text>
                 <View style={styles.listCard}>
                     <TotalsView totals={items} />
                 </View>
@@ -90,9 +95,12 @@ export function BudgetOverview() {
 
             {/* Primar knap */}
             <View style={styles.footer}>
-                <View style={styles.primaryButton}>
-                    <Text style={styles.primaryButtonText}>+  Ny udgift</Text>
-                </View>
+                <Button title="+  Ny udgift" onPress={() => setShowModal(true)} />
+                <AddVariableExpenseModal
+                    visible={showModal}
+                    onClose={() => setShowModal(false)}
+                    onSubmit={vm.addVariableExpense}
+                />
             </View>
         </ScrollView>
     );

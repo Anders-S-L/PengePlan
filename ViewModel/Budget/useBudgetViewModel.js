@@ -9,7 +9,7 @@ import { calculateDisposableAmount, calculateTotals } from "../../Model/rådighe
 import { loadBudget, saveBudget } from "../../Services/storage";
 
 // ViewModel helper-funktioner: rene funktioner der returnerer et nyt budget-objekt
-import { addFixedIncome, addFixedExpense } from "./addEntries";
+import { addFixedIncome, addFixedExpense, addVariableIncome, addVariableExpense } from "./addEntries";
 
 export function useBudgetViewModel() {
   // budget indeholder HELE budget-objektet:
@@ -77,15 +77,37 @@ export function useBudgetViewModel() {
     return entries.reduce((sum, e) => sum + toNumber(e?.amount), 0);
   }
 
+  async function handleAddVariableIncome(entry) {
+    if (!budget) return;
+
+    const next = addVariableIncome(budget, entry);
+    await commit(next);
+  }
+  async function handleAddVariableExpense(entry) {
+    if (!budget) return;
+
+    const next = addVariableExpense(budget, entry);
+    await commit(next);
+  }
+
   // View får kun det, den skal bruge:
   // state + actions
+  const variableExpenses = budget?.variableExpenses ?? [];
+  const normalVariableExpenses = variableExpenses.filter(
+    (e) => !e.isLuxury
+  );
+  const luxuryExpenses = variableExpenses.filter(
+    (e) => e.isLuxury
+  );
+
   const totals = budget ? calculateTotals(budget) : { income: 0, expenses: 0 };
   const disposable = budget ? calculateDisposableAmount(budget) : 0;
 
   const fixedIncomeTotal = budget ? sumAmounts(budget.fixedIncome) : 0;
   const fixedExpensesTotal = budget ? sumAmounts(budget.fixedExpenses) : 0;
   const variableIncomeTotal = budget ? sumAmounts(budget.variableIncome) : 0;
-  const variableExpensesTotal = budget ? sumAmounts(budget.variableExpenses) : 0;
+  const variableExpensesTotal = budget ? sumAmounts(normalVariableExpenses) : 0;
+  const luxuryExpensesTotal = budget ? sumAmounts(luxuryExpenses) : 0;
 
   return {
     budget,
@@ -96,8 +118,11 @@ export function useBudgetViewModel() {
     fixedExpensesTotal,
     variableIncomeTotal,
     variableExpensesTotal,
+    luxuryExpensesTotal,
     addFixedIncome: handleAddFixedIncome,
     addFixedExpense: handleAddFixedExpense,
+    addVariableIncome: handleAddVariableIncome,
+    addVariableExpense: handleAddVariableExpense,
   };
 }
 
