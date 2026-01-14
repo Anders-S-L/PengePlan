@@ -67,7 +67,7 @@ export function BudgetOverview() {
 
             {/* Cirkeldiagram OBS: Skal ændres til den rigtige model, det her er bare Billede*/}
             <View style={styles.circleSection}>
-                <HjulUdseende />
+                <HjulUdseende budget={vm.budget} />
             </View>
 
             {/* Advarsel OBS: Skal ændres til rigtig data når det er lavet. Det her er bare hardcodet Ui*/}

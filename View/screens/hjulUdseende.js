@@ -3,7 +3,8 @@ import { View, Text, StyleSheet } from "react-native";
 import Svg, { Circle } from "react-native-svg";
 
 import { theme } from "../../styles/theme";
-import { useHjulUdregninger } from "../../ViewModel/hjulUdregninger";
+import { calculateWheelMetrics } from "../../ViewModel/hjulUdregninger";
+
 
 // Her definerer vi størrelsen på hjulet og cirklen. Eventuelt prøv at ændre lidt for at se hvordan det virker :)
 const WHEEL_SIZE = 140;
@@ -17,21 +18,15 @@ function formatKr(value) {
   return `${rounded.toLocaleString("da-DK")} kr.`;
 }
 
-export function HjulUdseende() {
+export function HjulUdseende({ budget }) {
   // Her hentes udregninger osv fra vores local storage i ViewModel så hjulet 
   // tegnes korrekt i forhold til budgettet, alt efter hvad brugeren har indtastet i deres budget
-  const { isLoading, metrics } = useHjulUdregninger();
+  // const { isLoading, metrics } = useHjulUdregninger();
 
   // her vises en loading tekst mens data hentes fra storage så brugeren ved at noget sker og at hjulet er på vej :D
   // Det er bare formelt, men vigtigt for brugeroplevelsen, hvisd en er lang tid om at loade data
-  if (isLoading) {
-    return (
-      <View style={styles.container}>
-        <Text style={styles.loadingText}>Indlæser budgettet...</Text>
-      </View>
-    );
-  }
 
+  const metrics = calculateWheelMetrics(budget);
   // Tager  de felter vi skal bruge i UIet fra metrics objektet som er lavet i ViewModel. Det er de udregnede tal baseret på brugerens budget
   // hentet fra local storage og de procenter vi har defineret i ViewModel i filen hjulUdregninger.js.
   const {
@@ -120,7 +115,7 @@ export function HjulUdseende() {
           <View
             style={[styles.legendDot, { backgroundColor: theme.colors.danger }]}
           />
-                  {/* Teksten som står under hjulet ("Almindelige" og "Lusksus" teksten)*/}
+          {/* Teksten som står under hjulet ("Almindelige" og "Lusksus" teksten)*/}
           <Text style={styles.legendText}>Almindelige</Text>
         </View>
         <View style={styles.legendItem}>
@@ -130,7 +125,7 @@ export function HjulUdseende() {
           <Text style={styles.legendText}>Luksus</Text>
         </View>
       </View>
-        {/* Teksten som står under hjulet ("Tilbage" og "Brugt" teksten) */}
+      {/* Teksten som står under hjulet ("Tilbage" og "Brugt" teksten) */}
       <View style={styles.summaryRow}>
         <Text style={styles.summaryLabel}>Tilbage</Text>
         <Text style={[styles.summaryValue, { color: remainingColor }]}>

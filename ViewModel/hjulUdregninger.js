@@ -38,20 +38,15 @@ function sumAmounts(entries = []) {
 // Vi understøtter flere feltnavne, så det er nemt at bruge.
 // Dette skal måske ændres når vi har lavet udvidet budgettering med kategorier osv.
 function isLuxuryEntry(entry) {
-  if (!entry || typeof entry !== "object") return false;
-  if (entry.isLuxury === true || entry.luxury === true) return true;
-  const category = String(entry.category || entry.type || "").toLowerCase();
-  return category === "luksus" || category === "luxury";
+  return entry?.isLuxury === true || entry?.isLuxury === "true";
 }
 
-// Summerer kun luksus udgifter.
 function sumLuxury(entries = []) {
   return entries.reduce((sum, entry) => {
     if (!isLuxuryEntry(entry)) return sum;
     return sum + toNumber(entry.amount);
   }, 0);
 }
-
 // Her udregnes alle de tal som hjulet skal bruge baseret på budget dataen lokaliseret i storage.js.
 // Dataen kommer fra local storaget som er gemt når brugeren opretter deres budget i appen.
 // Man tager altså budget objekterne og udregner totaler og procenter som hjulet skal bruge.
@@ -68,7 +63,7 @@ export function calculateWheelMetrics(budget) {
   const expenseTotal = fixedExpenseTotal + variableExpenseTotal;
 
   const luxuryTotal =
-    sumLuxury(budget.fixedExpenses) + sumLuxury(budget.variableExpenses);
+    sumLuxury(budget.variableExpenses);
 
   const remaining = incomeTotal - expenseTotal;
   // Vi deler kun med indkomst, hvis den er over 0. Det gør at vi undgår division med 0
