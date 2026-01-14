@@ -5,6 +5,7 @@ import { View, Text, StyleSheet, ScrollView } from "react-native";
 
 import { useBudgetViewModel } from "../../ViewModel/Budget/useBudgetViewModel";
 import { TotalsView } from "../TotalsView";
+import { HjulUdseende } from "./hjulUdseende";
 
 export function BudgetOverview() {
     // Henter budgetdata fra view modellen
@@ -20,7 +21,7 @@ export function BudgetOverview() {
         { name: "Variable udgifter", value: -vm.variableExpensesTotal },
         { name: "Luksus udgifter", value: 0 },
         { name: "Total brugt", value: -vm.totals.expenses },
-        { name: "Raadighedsbeloeb", value: vm.disposable },
+        { name: "Rådighedsbeløb", value: vm.disposable },
     ];
 
 
@@ -46,7 +47,7 @@ export function BudgetOverview() {
                     <Text style={styles.calendarIcon}>📅</Text>
                 </View>
             </View>
-
+        
             {/* Tabs */}
             <View style={styles.tabRow}>
                 <View style={styles.tabItem}>
@@ -61,20 +62,10 @@ export function BudgetOverview() {
 
             {/* Cirkeldiagram OBS: Skal ændres til den rigtige model, det her er bare Billede*/}
             <View style={styles.circleSection}>
-                <View style={styles.circle} />
-                <View style={styles.legendRow}>
-                    <View style={styles.legendItem}>
-                        <View style={styles.legendDot} />
-                        <Text style={styles.legendText}>Almindelige</Text>
-                    </View>
-                    <View style={styles.legendItem}>
-                        <View style={styles.legendDot} />
-                        <Text style={styles.legendText}>Luksus</Text>
-                    </View>
-                </View>
+                <HjulUdseende />
             </View>
 
-            {/* Advarsel OBS: Skal ændres til rigtig data når det er lavet*/}
+            {/* Advarsel OBS: Skal ændres til rigtig data når det er lavet. Det her er bare hardcodet Ui*/}
             <View style={styles.alertBox}>
                 <Text style={styles.alertTitle}>Budget overskredet</Text>
                 <Text style={styles.alertText}>Du har brugt 200% af dit budget</Text>
@@ -82,7 +73,7 @@ export function BudgetOverview() {
 
             {/* Månedsoversigt */}
             <View style={styles.section}>
-                <Text style={styles.sectionTitle}>Maanedsoversigt</Text>
+                <Text style={styles.sectionTitle}>Månedsoversigt</Text>
                 <View style={styles.listCard}>
                     <TotalsView totals={items} />
                 </View>
@@ -194,31 +185,6 @@ const styles = StyleSheet.create({
         alignItems: "center",
         marginTop: 16,
         marginBottom: 8,
-    },
-    circle: {
-        width: 120,
-        height: 120,
-        borderRadius: 60,
-        borderWidth: 6,
-    },
-    legendRow: {
-        flexDirection: "row",
-        gap: 16,
-        marginTop: 8,
-    },
-    legendItem: {
-        flexDirection: "row",
-        alignItems: "center",
-        gap: 6,
-    },
-    legendDot: {
-        width: 8,
-        height: 8,
-        borderRadius: 4,
-        borderWidth: 1,
-    },
-    legendText: {
-        fontSize: 12,
     },
     alertBox: {
         marginTop: 8,
