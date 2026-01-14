@@ -1,23 +1,26 @@
 ﻿// Dette er vores forside skaerm der viser budgetoversigten.
 
 import React from "react";
-import { View, Text, StyleSheet, ScrollView } from "react-native";
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from "react-native";
 import { useState } from "react";
+import { useEffect, useRef } from "react";
 import { useBudgetViewModel } from "../../ViewModel/Budget/useBudgetViewModel";
 import { TotalsView } from "../TotalsView";
 import { AddVariableExpenseModal } from "../addVariableExpenseModal";
 import { Button } from "../../components/UI/Button";
 
 import { HjulUdseende } from "./hjulUdseende";
+import { ResetBudgetModal } from "../resetBudgetModal";
 
-export function BudgetOverview() {
+export function BudgetOverview({ onResetAll }) {
     // Henter budgetdata fra view modellen
     const vm = useBudgetViewModel();
     const [showModal, setShowModal] = useState(false);
-
+    const [showResetModal, setShowResetModal] = useState(false);
 
     if (vm.isLoading) return <Text>Indlæser...</Text>;
     if (!vm.budget) return <Text>Ingen budget endnu</Text>;
+
 
     // UI-liste til maanedsoverblikket
     const items = [
@@ -44,9 +47,14 @@ export function BudgetOverview() {
                 <Text style={styles.label}>Rådighedsbeløb</Text>
                 <View style={styles.balanceRow}>
                     <View style={styles.balanceLeft}>
-                        <View style={styles.editCircle}>
+                        <TouchableOpacity
+                            style={styles.editCircle}
+                            onPress={() => setShowResetModal(true)}
+                            accessibilityRole="button"
+                            accessibilityLabel="Rediger budget"
+                        >
                             <Text style={styles.editIcon}>✎</Text>
-                        </View>
+                        </TouchableOpacity>
                         <Text style={styles.balanceAmount}>{råd}</Text>
                     </View>
                     <Text style={styles.calendarIcon}>📅</Text>
@@ -91,6 +99,28 @@ export function BudgetOverview() {
                     visible={showModal}
                     onClose={() => setShowModal(false)}
                     onSubmit={vm.addVariableExpense}
+                />
+                <ResetBudgetModal
+                    visible={showResetModal}
+                    onClose={() => setShowResetModal(false)}
+                    onResetAll={async () => {
+                        await vm.resetAllBudget();
+                        setShowResetModal(false);
+                        onResetAll?.(); // hop til onboarding
+                    }}
+                    onResetFixed={async () => {
+                        await vm.resetFixedBudget();
+                        setShowResetModal(false);
+                    }}
+                    onResetVariable={async () => {
+                        await vm.resetVariableBudget();
+                        setShowResetModal(false);
+                    }}
+                    onSaveFixed={async (payload) => {
+                        await vm.updateFixedEntries(payload);
+                        setShowResetModal(false);
+                    }}
+                    budget={vm.budget}
                 />
             </View>
         </ScrollView>
@@ -141,17 +171,16 @@ const styles = StyleSheet.create({
         gap: 8,
     },
     editCircle: {
-        width: 28,
-        height: 28,
-        borderRadius: 14,
+        width: 44,
+        height: 44,
+        borderRadius: 22,
         alignItems: "center",
         justifyContent: "center",
-        borderWidth: 1,
-        borderColor: "#2F70FF",
+        backgroundColor: "#2F70FF",
     },
     editIcon: {
-        fontSize: 14,
-        color: "#2F70FF",
+        fontSize: 20,
+        color: "#FFFFFF",
     },
     balanceAmount: {
         fontSize: 20,

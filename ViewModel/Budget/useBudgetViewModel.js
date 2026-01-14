@@ -6,7 +6,7 @@ import { calculateDisposableAmount, calculateTotals } from "../../Model/rådighe
 
 
 // Service-laget: henter og gemmer budgettet i AsyncStorage
-import { loadBudget, saveBudget } from "../../Services/storage";
+import { loadBudget, resetBudget, saveBudget } from "../../Services/storage";
 
 // ViewModel helper-funktioner: rene funktioner der returnerer et nyt budget-objekt
 import { addFixedIncome, addFixedExpense, addVariableIncome, addVariableExpense } from "./addEntries";
@@ -90,6 +90,41 @@ export function useBudgetViewModel() {
     await commit(next);
   }
 
+  async function handleResetBudget(options = {}) {
+    if (!budget) return;
+    const { fixed = true, variable = true } = options;
+    const next = {
+      ...budget,
+      ...(fixed ? { fixedIncome: [], fixedExpenses: [] } : {}),
+      ...(variable ? { variableIncome: [], variableExpenses: [] } : {}),
+    };
+
+    await commit(next);
+  }
+
+  async function handleUpdateFixedEntries({ fixedIncome, fixedExpenses }) {
+    if (!budget) return;
+
+    const next = {
+      ...budget,
+      fixedIncome: fixedIncome ?? budget.fixedIncome,
+      fixedExpenses: fixedExpenses ?? budget.fixedExpenses,
+    };
+
+    await commit(next);
+  }
+  async function handleResetAllBudget() {
+    await handleResetBudget();
+  }
+
+  async function handleResetFixedBudget() {
+    await handleResetBudget({ fixed: true, variable: false });
+  }
+
+  async function handleResetVariableBudget() {
+    await handleResetBudget({ fixed: false, variable: true });
+  }
+
   // View får kun det, den skal bruge:
   // state + actions
   const variableExpenses = budget?.variableExpenses ?? [];
@@ -123,6 +158,11 @@ export function useBudgetViewModel() {
     addFixedExpense: handleAddFixedExpense,
     addVariableIncome: handleAddVariableIncome,
     addVariableExpense: handleAddVariableExpense,
+    resetBudget: handleResetBudget,
+    resetAllBudget: handleResetAllBudget,
+    resetFixedBudget: handleResetFixedBudget,
+    resetVariableBudget: handleResetVariableBudget,
+    updateFixedEntries: handleUpdateFixedEntries,
   };
 }
 

@@ -32,5 +32,6 @@ export default function App() {
   if (screen === "onboarding") {
     // Når onboarding er færdig, hop til overview
     return <OnboardingScreen onDone={() => setScreen("overview")} />;
-  } return <BudgetOverview />;
+  }
+  return <BudgetOverview onResetAll={() => setScreen("onboarding")} />;
 }
