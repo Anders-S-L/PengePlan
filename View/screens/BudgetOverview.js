@@ -8,6 +8,7 @@ import { TotalsView } from "../TotalsView";
 import { AddVariableExpenseModal } from "../addVariableExpenseModal";
 import { Button } from "../../components/UI/Button";
 
+import { HjulUdseende } from "./hjulUdseende";
 
 export function BudgetOverview() {
     // Henter budgetdata fra view modellen
@@ -66,20 +67,10 @@ export function BudgetOverview() {
 
             {/* Cirkeldiagram OBS: Skal ændres til den rigtige model, det her er bare Billede*/}
             <View style={styles.circleSection}>
-                <View style={styles.circle} />
-                <View style={styles.legendRow}>
-                    <View style={styles.legendItem}>
-                        <View style={styles.legendDot} />
-                        <Text style={styles.legendText}>Almindelige</Text>
-                    </View>
-                    <View style={styles.legendItem}>
-                        <View style={styles.legendDot} />
-                        <Text style={styles.legendText}>Luksus</Text>
-                    </View>
-                </View>
+                <HjulUdseende />
             </View>
 
-            {/* Advarsel OBS: Skal ændres til rigtig data når det er lavet*/}
+            {/* Advarsel OBS: Skal ændres til rigtig data når det er lavet. Det her er bare hardcodet Ui*/}
             <View style={styles.alertBox}>
                 <Text style={styles.alertTitle}>Budget overskredet</Text>
                 <Text style={styles.alertText}>Du har brugt 200% af dit budget</Text>
@@ -202,31 +193,6 @@ const styles = StyleSheet.create({
         alignItems: "center",
         marginTop: 16,
         marginBottom: 8,
-    },
-    circle: {
-        width: 120,
-        height: 120,
-        borderRadius: 60,
-        borderWidth: 6,
-    },
-    legendRow: {
-        flexDirection: "row",
-        gap: 16,
-        marginTop: 8,
-    },
-    legendItem: {
-        flexDirection: "row",
-        alignItems: "center",
-        gap: 6,
-    },
-    legendDot: {
-        width: 8,
-        height: 8,
-        borderRadius: 4,
-        borderWidth: 1,
-    },
-    legendText: {
-        fontSize: 12,
     },
     alertBox: {
         marginTop: 8,
