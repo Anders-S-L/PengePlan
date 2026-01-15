@@ -135,6 +135,30 @@ export function useBudgetViewModel() {
     (e) => e.isLuxury
   );
 
+  const expenses = [
+    ...(budget?.fixedExpenses ?? []).map((expense) => ({
+      ...expense,
+      category: "Faste udgifter",
+    })),
+    ...(budget?.variableExpenses ?? []).map((expense) => ({
+      ...expense,
+      category: expense.category || "Andet",
+    })),
+  ];
+
+  const expensesByCategory = expenses.reduce((grouped, expense) => {
+    const category = expense.category || "Andet";
+    if (!grouped[category]) {
+      grouped[category] = [];
+    }
+    grouped[category].push(expense);
+    return grouped;
+  }, {});
+
+  const sortedExpenseCategories = Object.keys(expensesByCategory).sort((a, b) =>
+    a.localeCompare(b, "da-DK")
+  );
+
   const totals = budget ? calculateTotals(budget) : { income: 0, expenses: 0 };
   const disposable = budget ? calculateDisposableAmount(budget) : 0;
 
@@ -154,6 +178,8 @@ export function useBudgetViewModel() {
     variableIncomeTotal,
     variableExpensesTotal,
     luxuryExpensesTotal,
+    expensesByCategory,
+    sortedExpenseCategories,
     addFixedIncome: handleAddFixedIncome,
     addFixedExpense: handleAddFixedExpense,
     addVariableIncome: handleAddVariableIncome,
