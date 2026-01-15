@@ -36,10 +36,18 @@ export function BudgetOverview({ onResetAll }) {
     ];
     const råd = vm.disposable + " kr.";
 
+    const budgetUsage = vm.budgetUsage ?? { spentPercent: 0, overBudgetPercent: 0, isOverBudget: false };
+    const { spentPercent, overBudgetPercent, isOverBudget } = budgetUsage;
+
+    const alertTitle = isOverBudget ? "Budget overskredet" : "Budgetstatus";
+    const alertText = isOverBudget
+        ? `Du har overskredet dit budget med ${overBudgetPercent}%`
+        : `Du har brugt ${spentPercent}% af dit budget`;
     const formatAmount = (value) => {
         const amount = Number(value) || 0;
         return `${amount.toLocaleString("da-DK")} kr.`;
     };
+    console.log("budgetUsage", vm.budgetUsage, "totals", vm.totals);
 
     return (
         <View style={styles.screen}>
@@ -116,8 +124,8 @@ export function BudgetOverview({ onResetAll }) {
 
                         {/* Advarsel OBS: Skal ændres til rigtig data når det er lavet. Det her er bare hardcodet Ui*/}
                         <View style={styles.alertBox}>
-                            <Text style={styles.alertTitle}>Budget overskredet</Text>
-                            <Text style={styles.alertText}>Du har brugt 200% af dit budget</Text>
+                            <Text style={styles.alertTitle}>{alertTitle}</Text>
+                            <Text style={styles.alertText}>{alertText}</Text>
                         </View>
 
                         {/* Månedsoversigt */}

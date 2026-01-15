@@ -167,6 +167,16 @@ export function useBudgetViewModel() {
   const variableIncomeTotal = budget ? sumAmounts(budget.variableIncome) : 0;
   const variableExpensesTotal = budget ? sumAmounts(normalVariableExpenses) : 0;
   const luxuryExpensesTotal = budget ? sumAmounts(luxuryExpenses) : 0;
+  const incomeTotal = Number(totals?.income ?? 0);
+  const expensesTotal = Number(totals?.expenses ?? 0);
+
+  const spentPercentRaw = incomeTotal > 0 ? (expensesTotal / incomeTotal) * 100 : 0;
+
+  // 1 decimal i stedet for Math.round
+  const spentPercent = Number(spentPercentRaw.toFixed(1));
+
+  const overBudgetPercent = Number(Math.max(spentPercentRaw - 100, 0).toFixed(1));
+  const isOverBudget = spentPercentRaw > 100;
 
   return {
     budget,
@@ -180,6 +190,11 @@ export function useBudgetViewModel() {
     luxuryExpensesTotal,
     expensesByCategory,
     sortedExpenseCategories,
+    budgetUsage: {
+      spentPercent,
+      overBudgetPercent,
+      isOverBudget,
+    },
     addFixedIncome: handleAddFixedIncome,
     addFixedExpense: handleAddFixedExpense,
     addVariableIncome: handleAddVariableIncome,
