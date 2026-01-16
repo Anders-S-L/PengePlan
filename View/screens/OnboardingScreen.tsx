@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { useOnboardingViewModel } from '../../ViewModel/useOnboardingViewModel';
-import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, Image } from 'react-native';
 import { useState } from 'react';
 
 
@@ -81,7 +81,10 @@ export default function OnboardingScreen({ onDone }: Probs) {
       return (
         <>
           <View style={styles.iconCircle}>
-            <AppText style={styles.iconText}>🌟</AppText>
+            <Image
+              source={require("../../assets/logo.png")}
+              style={styles.iconImage}
+            />
           </View>
 
           <AppText variant="h4" style={styles.title}>
@@ -251,7 +254,7 @@ const styles = StyleSheet.create({
   },
   iconCircle: {
     alignSelf: "center",
-    backgroundColor: "#E0D7FF",
+    backgroundColor: "#FFFFFF",
     width: 56,
     height: 56,
     borderRadius: 28,
@@ -260,6 +263,11 @@ const styles = StyleSheet.create({
     marginBottom: theme.spacing.lg,
   },
   iconText: { fontSize: 24 },
+  iconImage: {
+    width: 65,
+    height: 65,
+    resizeMode: "contain",
+  },
   title: { textAlign: "center", marginBottom: theme.spacing.sm },
   subtitle: {
     textAlign: "center",
@@ -325,7 +333,6 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
 });
-
 
 
 
