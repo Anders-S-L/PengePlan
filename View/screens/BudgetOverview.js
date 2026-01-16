@@ -47,7 +47,6 @@ export function BudgetOverview({ onResetAll }) {
         const amount = Number(value) || 0;
         return `${amount.toLocaleString("da-DK")} kr.`;
     };
-    console.log("budgetUsage", vm.budgetUsage, "totals", vm.totals);
 
     return (
         <View style={styles.screen}>
