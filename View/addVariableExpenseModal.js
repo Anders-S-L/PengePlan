@@ -10,9 +10,9 @@ import { theme } from "../styles/theme";
 const categories = [
     "Mad",
     "Transport",
-    "Hjem,",
+    "Hjem",
     "Shopping",
-    "Underholding",
+    "Underholdning",
     "Andet",
 ];
 
