@@ -25,7 +25,7 @@ export function BudgetOverview({ onResetAll }) {
     if (!vm.budget) return <Text>Ingen budget endnu</Text>;
 
 
-    // UI-liste til maanedsoverblikket
+    // UI-liste til månedsoverblikket
     const items = [
         { name: "Månedlig indkomst", value: vm.totals.income },
         { name: "Faste omkostninger", value: -vm.fixedExpensesTotal },
@@ -34,6 +34,13 @@ export function BudgetOverview({ onResetAll }) {
         { name: "Total brugt", value: -vm.totals.expenses },
         { name: "Rådighedsbeløb", value: vm.disposable },
     ];
+    // Formaterer beløb med . og kr. og mellemrum for negative tal
+    const formatSignedAmount = (value) => {
+        const amount = Math.abs(Number(value) || 0).toLocaleString("da-DK");
+        const sign = value < 0 ? "- " : "";
+        return `${sign}${amount} kr.`;
+    };
+    const råd = formatSignedAmount(vm.disposable);
 
     const budgetUsage = vm.budgetUsage ?? { spentPercent: 0, overBudgetPercent: 0, isOverBudget: false };
     const { spentPercent, overBudgetPercent, isOverBudget } = budgetUsage;
@@ -111,7 +118,15 @@ export function BudgetOverview({ onResetAll }) {
                             >
                                 <Text style={styles.editIcon}>✎</Text>
                             </TouchableOpacity>
-                            <Text style={styles.balanceAmount}>{raad}</Text>
+                            {/* Ændrer farven i rådighedsbeløbet til rød eller grøn */}
+                            <Text
+                                style={[
+                                    styles.balanceAmount,
+                                    vm.disposable < 0 ? styles.amountNegative : styles.amountPositive,
+                                ]}
+                            >
+                                {råd}
+                            </Text>
                         </View>
                         <Text style={styles.calendarIcon}>📅</Text>
                     </View>
@@ -161,12 +176,13 @@ export function BudgetOverview({ onResetAll }) {
                             <HjulUdseende budget={vm.budget} />
                         </View>
 
-                        {/* Det her er advarslen til brugeren om at budgetet er overskredet (eller ikke) */}
-                        <View style={styles.alertBox}>
-                            <Text style={styles.alertTitle}>{alertTitle}</Text>
-                            <Text style={styles.alertText}>{alertText}</Text>
-                        </View>
-
+                        {/* Budget overskredet boks */}
+                        {isOverBudget && (
+                            <View style={styles.overBudgetBox}>
+                                <Text style={styles.overBudgetTitle}>⚠️ Budget overskredet</Text>
+                                <Text style={styles.overBudgetText}>{alertText}</Text>
+                            </View>
+                        )}
                         {/* Månedsoversigt */}
                         <View style={styles.section}>
                             <Text style={styles.sectionTitle}>Månedsoversigt</Text>
@@ -371,6 +387,13 @@ const styles = StyleSheet.create({
     amountNegative: {
         color: "#FE0303",
     },
+    // Farver for positiv og negativ balance
+    amountPositive: {
+        color: "#39D52E",
+    },
+    amountNegative: {
+        color: "#FE0303",
+    },
     calendarIcon: {
         fontSize: 25,
     },
@@ -452,6 +475,34 @@ const styles = StyleSheet.create({
         fontSize: 14,
         fontWeight: "700",
         color: "#111827",
+    },
+    budgetStatusText: {
+        fontSize: 12,
+        marginTop: 8,
+        color: "#374151",
+        textAlign: "center",
+    },
+    overBudgetBox: {
+        marginTop: 8,
+        alignSelf: "center",
+        alignItems: "center",
+        width: "60%",
+        paddingVertical: 6,
+        paddingHorizontal: 10,
+        borderRadius: 12,
+        borderWidth: 1,
+        borderColor: "#FCA5A5",
+        backgroundColor: "#FEE2E2",
+    },
+    overBudgetTitle: {
+        fontSize: 12,
+        fontWeight: "700",
+        color: "#B91C1C",
+        marginBottom: 4,
+    },
+    overBudgetText: {
+        fontSize: 12,
+        color: "#B91C1C",
     },
 
     emptyState: {
