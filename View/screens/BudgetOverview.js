@@ -34,7 +34,14 @@ export function BudgetOverview({ onResetAll }) {
         { name: "Total brugt", value: -vm.totals.expenses },
         { name: "Rådighedsbeløb", value: vm.disposable },
     ];
-    const råd = vm.disposable + " kr.";
+
+    // Formaterer beløb med . og kr. og mellemrum for negative tal
+        const formatSignedAmount = (value) => {
+        const amount = Math.abs(Number(value) || 0).toLocaleString("da-DK");
+        const sign = value < 0 ? "- " : "";
+        return `${sign}${amount} kr.`;
+    };
+    const råd = formatSignedAmount(vm.disposable);
 
     const budgetUsage = vm.budgetUsage ?? { spentPercent: 0, overBudgetPercent: 0, isOverBudget: false };
     const { spentPercent, overBudgetPercent, isOverBudget } = budgetUsage;
@@ -42,7 +49,7 @@ export function BudgetOverview({ onResetAll }) {
     const alertTitle = isOverBudget ? "Budget overskredet" : "Budgetstatus";
     const alertText = isOverBudget
         ? `Du har overskredet dit budget med ${overBudgetPercent}%`
-        : `Du har brugt ${spentPercent}% af dit budget`;
+        : `Du har brugt ${spentPercent}% af dit månedlige budget`;
     const formatAmount = (value) => {
         const amount = Number(value) || 0;
         return `${amount.toLocaleString("da-DK")} kr.`;
@@ -71,7 +78,16 @@ export function BudgetOverview({ onResetAll }) {
                             >
                                 <Text style={styles.editIcon}>✎</Text>
                             </TouchableOpacity>
-                            <Text style={styles.balanceAmount}>{råd}</Text>
+                            
+                            {/* Ændrer farven i rådighedsbeløbet til rød eller grøn */}
+                            <Text
+                                style={[
+                                    styles.balanceAmount,
+                                    vm.disposable < 0 ? styles.amountNegative : styles.amountPositive,
+                                ]}
+                            >
+                                {råd}
+                            </Text>
                         </View>
                         <Text style={styles.calendarIcon}>📅</Text>
                     </View>
@@ -121,11 +137,13 @@ export function BudgetOverview({ onResetAll }) {
                             <HjulUdseende budget={vm.budget} />
                         </View>
 
-                        {/* Advarsel OBS: Skal ændres til rigtig data når det er lavet. Det her er bare hardcodet Ui*/}
-                        <View style={styles.alertBox}>
-                            <Text style={styles.alertTitle}>{alertTitle}</Text>
-                            <Text style={styles.alertText}>{alertText}</Text>
-                        </View>
+                        {/* Budget overskredet boks */}
+                        {isOverBudget && (
+                            <View style={styles.overBudgetBox}>
+                                <Text style={styles.overBudgetTitle}>⚠️ Budget overskredet</Text>
+                                <Text style={styles.overBudgetText}>{alertText}</Text>
+                            </View>
+                        )}
 
                         {/* Månedsoversigt */}
                         <View style={styles.section}>
@@ -133,6 +151,7 @@ export function BudgetOverview({ onResetAll }) {
                             <View style={styles.listCard}>
                                 <TotalsView totals={items} />
                             </View>
+                            <Text style={styles.budgetStatusText}>{alertText}</Text>
                         </View>
                     </>
                 ) : (
@@ -293,6 +312,13 @@ const styles = StyleSheet.create({
         fontSize: 20,
         fontWeight: "700",
     },
+    // Farver for positiv og negativ balance
+    amountPositive: {
+        color: "#39D52E",
+    },
+    amountNegative: {
+        color: "#FE0303",
+    },
     calendarIcon: {
         fontSize: 25,
     },
@@ -330,22 +356,6 @@ const styles = StyleSheet.create({
         marginTop: 16,
         marginBottom: 8,
     },
-    alertBox: {
-        marginTop: 8,
-        marginHorizontal: 16,
-        padding: 10,
-        borderRadius: 10,
-        borderWidth: 1,
-        alignItems: "center",
-    },
-    alertTitle: {
-        fontSize: 12,
-        fontWeight: "700",
-        marginBottom: 4,
-    },
-    alertText: {
-        fontSize: 12,
-    },
     section: {
         marginTop: 16,
         paddingHorizontal: 16,
@@ -353,12 +363,40 @@ const styles = StyleSheet.create({
     sectionTitle: {
         fontSize: 14,
         fontWeight: "600",
-        marginBottom: 8,
+        marginBottom: 0,
     },
     listCard: {
         borderRadius: 12,
-        borderWidth: 1,
+        borderWidth: 0,
         padding: 12,
+    },
+    budgetStatusText: {
+        fontSize: 12,
+        marginTop: 8,
+        color: "#374151",
+        textAlign: "center",
+    },
+    overBudgetBox: {
+        marginTop: 8,
+        alignSelf: "center",
+        alignItems: "center",
+        width: "60%",
+        paddingVertical: 6,
+        paddingHorizontal: 10,
+        borderRadius: 12,
+        borderWidth: 1,
+        borderColor: "#FCA5A5",
+        backgroundColor: "#FEE2E2",
+    },
+    overBudgetTitle: {
+        fontSize: 12,
+        fontWeight: "700",
+        color: "#B91C1C",
+        marginBottom: 4,
+    },
+    overBudgetText: {
+        fontSize: 12,
+        color: "#B91C1C",
     },
 
     emptyState: {
@@ -434,4 +472,3 @@ const styles = StyleSheet.create({
         fontWeight: "700",
     },
 });
-

@@ -51,7 +51,9 @@ export function TotalsView({ totals }: Props) {
 }
 
 const styles = StyleSheet.create({
-    card: {},
+    card: {
+        marginTop: 0,
+    },
     row: {
         flexDirection: "row",
         justifyContent: "space-between",
