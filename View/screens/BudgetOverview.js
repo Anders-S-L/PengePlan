@@ -1,108 +1,314 @@
 ﻿// Dette er vores forside skaerm der viser budgetoversigten.
 
 import React from "react";
-import { View, Text, StyleSheet, ScrollView } from "react-native";
-
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from "react-native";
+import { useState } from "react";
+import { useEffect, useRef } from "react";
 import { useBudgetViewModel } from "../../ViewModel/Budget/useBudgetViewModel";
 import { TotalsView } from "../TotalsView";
+import { AddVariableExpenseModal } from "../addVariableExpenseModal";
+import { Button } from "../../components/UI/Button";
 
-export function BudgetOverview() {
+import { HjulUdseende } from "./hjulUdseende";
+import { ResetBudgetModal } from "../resetBudgetModal";
+import { Card } from "../../components/UI/Card";
+
+
+export function BudgetOverview({ onResetAll }) {
     // Henter budgetdata fra view modellen
     const vm = useBudgetViewModel();
+    const [showModal, setShowModal] = useState(false);
+    const [showResetModal, setShowResetModal] = useState(false);
+    const [activeTab, setActiveTab] = useState("overblik");
 
-    if (vm.isLoading) return <Text>Indlaeser...</Text>;
+    if (vm.isLoading) return <Text>Indlæser...</Text>;
     if (!vm.budget) return <Text>Ingen budget endnu</Text>;
+
 
     // UI-liste til maanedsoverblikket
     const items = [
-        { name: "Maanedlig indkomst", value: vm.totals.income },
-        { name: "Faste omkostninger", value: 0 },
-        { name: "Variable udgifter", value: 0 },
-        { name: "Luksus udgifter", value: 0 },
+        { name: "Månedlig indkomst", value: vm.totals.income },
+        { name: "Faste omkostninger", value: -vm.fixedExpensesTotal },
+        { name: "Variable udgifter", value: -vm.variableExpensesTotal },
+        { name: "Luksus udgifter", value: -vm.luxuryExpensesTotal },
         { name: "Total brugt", value: -vm.totals.expenses },
-        { name: "Raadighedsbeloeb", value: vm.disposable },
+        { name: "Rådighedsbeløb", value: vm.disposable },
     ];
 
+    const budgetUsage = vm.budgetUsage ?? { spentPercent: 0, overBudgetPercent: 0, isOverBudget: false };
+    const { spentPercent, overBudgetPercent, isOverBudget } = budgetUsage;
+
+    const alertTitle = isOverBudget ? "Budget overskredet" : "Budgetstatus";
+    const alertText = isOverBudget
+        ? `Du har overskredet dit budget med ${overBudgetPercent}%`
+        : `Du har brugt ${spentPercent}% af dit budget`;
+    const formatAmount = (value) => {
+        const amount = Number(value) || 0;
+        return `${amount.toLocaleString("da-DK")} kr.`;
+    };
+    const raad = vm.disposable + " kr.";
+    // Emoji til hver kategori (bruger en fallback hvis vi ikke kender kategorien)
+    const categoryEmojiMap = {
+        Mad: "🍽️",
+        Transport: "🚌",
+        Hjem: "🏠",
+        Shopping: "🛍️",
+        Underholdning: "🎮",
+        Faste_udgifter: "🧾",
+        Andet: "💸",
+    };
+    // Hjælper til at vælge emoji ud fra kategori
+    const getCategoryEmoji = (category) => categoryEmojiMap[category] || "💼";
+    // Finder totals pr. kategori (kun beløb, ikke enkelt-udgifter)
+    const categoryTotals = vm.sortedExpenseCategories.map((category) => {
+        const entries = vm.expensesByCategory?.[category] ?? [];
+        const total = entries.reduce((sum, expense) => sum + (Number(expense.amount) || 0), 0);
+        return { category, total };
+    });
+    // Finder de nyeste transaktioner ud fra allerede eksisterende data
+    const recentTransactions = Object.entries(vm.expensesByCategory ?? {})
+        .flatMap(([category, expenses]) =>
+            (expenses ?? []).map((expense) => ({
+                ...expense,
+                category: expense.category || category || "Andet",
+            }))
+        )
+        .sort((a, b) => {
+            const dateDiff = (b.createdAt || 0) - (a.createdAt || 0);
+            if (dateDiff !== 0) return dateDiff;
+            return (a.name || "").localeCompare(b.name || "", "da-DK");
+        });
+    // Vi viser alle, fordi ScrollView tager sig af at man kan rulle
+    // Dato-format til visning i listen
+    const formatDate = (timestamp) => {
+        if (!timestamp) return "";
+        return new Date(timestamp).toLocaleDateString("da-DK", {
+            day: "numeric",
+            month: "short",
+        });
+    };
+
     return (
-        <ScrollView contentContainerStyle={styles.container}>
-            {/* Topbar med måned */}
-            <View style={styles.topBar}>
-                <Text style={styles.navIcon}>{"<"}</Text>
-                <Text style={styles.monthTitle}>Oktober 2025</Text>
-                <Text style={styles.navIcon}>{">"}</Text>
-            </View>
+        <View style={styles.screen}>
+            <ScrollView style={styles.scroll} contentContainerStyle={styles.container}>
+                {/* Topbar med måned */}
+                <View style={styles.topBar}>
+                    <Text style={styles.navIcon}>{"<"}</Text>
+                    <Text style={styles.monthTitle}>Januar 2026</Text>
+                    <Text style={styles.navIcon}>{">"}</Text>
+                </View>
 
-            {/* Rådighedsbeløbet */}
-            <View style={styles.balanceSection}>
-                <Text style={styles.label}>Raadighedsbeloeb</Text>
-                <View style={styles.balanceRow}>
-                    <View style={styles.balanceLeft}>
-                        <View style={styles.editCircle}>
-                            <Text style={styles.editIcon}>✎</Text>
+                {/* Rådighedsbeløbet */}
+                <View style={styles.balanceSection}>
+                    <Text style={styles.label}>Rådighedsbeløb</Text>
+                    <View style={styles.balanceRow}>
+                        <View style={styles.balanceLeft}>
+                            <TouchableOpacity
+                                style={styles.editCircle}
+                                onPress={() => setShowResetModal(true)}
+                                accessibilityRole="button"
+                                accessibilityLabel="Rediger budget"
+                            >
+                                <Text style={styles.editIcon}>✎</Text>
+                            </TouchableOpacity>
+                            <Text style={styles.balanceAmount}>{raad}</Text>
                         </View>
-                        <Text style={styles.balanceAmount}>-2.500 kr.</Text>
-                    </View>
-                    <Text style={styles.calendarIcon}>📅</Text>
-                </View>
-            </View>
-
-            {/* Tabs */}
-            <View style={styles.tabRow}>
-                <View style={styles.tabItem}>
-                    <Text style={styles.tabActive}>OVERBLIK</Text>
-                    <View style={[styles.tabUnderline, styles.tabUnderlineActive]} />
-                </View>
-                <View style={styles.tabItem}>
-                    <Text style={styles.tabInactive}>UDGIFTER</Text>
-                    <View style={styles.tabUnderline} />
-                </View>
-            </View>
-
-            {/* Cirkeldiagram OBS: Skal ændres til den rigtige model, det her er bare Billede*/}
-            <View style={styles.circleSection}>
-                <View style={styles.circle} />
-                <View style={styles.legendRow}>
-                    <View style={styles.legendItem}>
-                        <View style={styles.legendDot} />
-                        <Text style={styles.legendText}>Almindelige</Text>
-                    </View>
-                    <View style={styles.legendItem}>
-                        <View style={styles.legendDot} />
-                        <Text style={styles.legendText}>Luksus</Text>
+                        <Text style={styles.calendarIcon}>📅</Text>
                     </View>
                 </View>
-            </View>
 
-            {/* Advarsel OBS: Skal ændres til rigtig data når det er lavet*/}
-            <View style={styles.alertBox}>
-                <Text style={styles.alertTitle}>Budget overskredet</Text>
-                <Text style={styles.alertText}>Du har brugt 200% af dit budget</Text>
-            </View>
+                {/* Tabs */}
+                <View style={styles.tabRow}>
+                    <TouchableOpacity
+                        style={styles.tabItem}
+                        onPress={() => setActiveTab("overblik")}
+                        accessibilityRole="button"
+                        accessibilityLabel="Vis overblik"
+                    >
+                        <Text style={activeTab === "overblik" ? styles.tabActive : styles.tabInactive}>
+                            OVERBLIK
+                        </Text>
+                        <View
+                            style={[
+                                styles.tabUnderline,
+                                activeTab === "overblik" && styles.tabUnderlineActive,
+                            ]}
+                        />
+                    </TouchableOpacity>
 
-            {/* Månedsoversigt */}
-            <View style={styles.section}>
-                <Text style={styles.sectionTitle}>Maanedsoversigt</Text>
-                <View style={styles.listCard}>
-                    <TotalsView totals={items} />
+                    <TouchableOpacity
+                        style={styles.tabItem}
+                        onPress={() => setActiveTab("udgifter")}
+                        accessibilityRole="button"
+                        accessibilityLabel="Vis udgifter"
+                    >
+                        <Text style={activeTab === "udgifter" ? styles.tabActive : styles.tabInactive}>
+                            UDGIFTER
+                        </Text>
+                        <View
+                            style={[
+                                styles.tabUnderline,
+                                activeTab === "udgifter" && styles.tabUnderlineActive,
+                            ]}
+                        />
+                    </TouchableOpacity>
                 </View>
-            </View>
 
-            {/* Primar knap */}
+                {activeTab === "overblik" ? (
+                    <>
+                        {/* Cirkeldiagram med budgetbrug */}
+                        <View style={styles.circleSection}>
+                            <HjulUdseende budget={vm.budget} />
+                        </View>
+
+                        {/* Det her er advarslen til brugeren om at budgetet er overskredet (eller ikke) */}
+                        <View style={styles.alertBox}>
+                            <Text style={styles.alertTitle}>{alertTitle}</Text>
+                            <Text style={styles.alertText}>{alertText}</Text>
+                        </View>
+
+                        {/* Månedsoversigt */}
+                        <View style={styles.section}>
+                            <Text style={styles.sectionTitle}>Månedsoversigt</Text>
+                            <View style={styles.listCard}>
+                                <TotalsView totals={items} />
+                            </View>
+                        </View>
+                    </>
+                ) : (
+                    <View style={styles.section}>
+                        <Text style={styles.sectionTitle}>Kategorier</Text>
+                        <Card style={styles.categoryListCard}>
+                            {categoryTotals.length === 0 ? (
+                                <Text style={styles.emptyState}>Ingen udgifter endnu.</Text>
+                            ) : (
+                                categoryTotals.map((item) => (
+                                    <View key={item.category} style={styles.categoryRow}>
+                                        <View style={styles.categoryIcon}>
+                                            <Text style={styles.categoryIconText}>
+                                                {getCategoryEmoji(item.category)}
+                                            </Text>
+                                        </View>
+                                        <Text style={styles.categoryName}>{item.category}</Text>
+                                        <Text style={styles.categoryAmount}>
+                                            {formatAmount(item.total)}
+                                        </Text>
+                                    </View>
+                                ))
+                            )}
+                        </Card>
+
+                        {/* Seneste transaktioner (rigtige data) */}
+                        <Text style={styles.sectionTitle}>Seneste transaktioner</Text>
+                        <View style={styles.transactionCard}>
+                            {/* ScrollView så man kan rulle på listen og se flere transaktioner uden at ødelægge resten af skærmen */}
+                            <ScrollView
+                                style={styles.transactionScroll}
+                                nestedScrollEnabled
+                                scrollEnabled
+                                showsVerticalScrollIndicator
+                            >
+                            {recentTransactions.length === 0 ? (
+                                <Text style={styles.emptyState}>Ingen transaktioner endnu.</Text>
+                            ) : (
+                                recentTransactions.map((expense, index) => {
+                                    const dateLabel = formatDate(expense.createdAt);
+                                    const icon = getCategoryEmoji(expense.category);
+                                    return (
+                                        <View 
+                                            key={`${expense.name}-${expense.createdAt ?? index}`}
+                                            style={styles.transactionRow}
+                                        >
+                                            <View style={styles.transactionIcon}>
+                                                <Text style={styles.transactionIconText}>{icon}</Text>
+                                            </View>
+                                            <View style={styles.transactionInfo}>
+                                                <Text style={styles.transactionTitle}>{expense.name}</Text>
+                                                <Text style={styles.transactionMeta}>
+                                                    {expense.category}{dateLabel ? ` - ${dateLabel}` : ""}
+                                                </Text>
+                                            </View>
+                                            <Text style={styles.transactionAmount}>
+                                                -{formatAmount(expense.amount)}
+                                            </Text>
+                                            {/* Det her er vores knapper til redigering og sletning af transaktioner. OBS: Skal ændres til rigtige knapper når det er lavet.*/}
+                                            <View style={styles.transactionActions}>
+                                                <TouchableOpacity
+                                                    style={styles.transactionActionBtn}
+                                                    onPress={() => {}}
+                                                    accessibilityRole="button"
+                                                    accessibilityLabel="Rediger transaktion"
+                                                >
+                                                <Text style={styles.transactionActionText}>✏️</Text>
+                                                </TouchableOpacity>
+                                                <TouchableOpacity
+                                                    style={styles.transactionActionBtn}
+                                                    onPress={() => {}}
+                                                    accessibilityRole="button"
+                                                    accessibilityLabel="Slet transaktion"
+                                                >
+                                                <Text style={styles.transactionActionText}>🗑️</Text>
+                                                </TouchableOpacity>
+                                            </View>
+                                        </View>
+                                    );
+                                })
+                            )}
+                            </ScrollView>
+                        </View>
+                    </View>
+                )}
+            </ScrollView>
+
+            {/* Primær knap (tilføj udgift) */}
             <View style={styles.footer}>
-                <View style={styles.primaryButton}>
-                    <Text style={styles.primaryButtonText}>+  Ny udgift</Text>
-                </View>
+                <Button title="+  Ny udgift" onPress={() => setShowModal(true)} />
+                <AddVariableExpenseModal
+                    visible={showModal}
+                    onClose={() => setShowModal(false)}
+                    onSubmit={vm.addVariableExpense}
+                />
+                <ResetBudgetModal
+                    visible={showResetModal}
+                    onClose={() => setShowResetModal(false)}
+                    onResetAll={async () => {
+                        await vm.resetAllBudget();
+                        setShowResetModal(false);
+                        onResetAll?.(); // hop til onboarding
+                    }}
+                    onResetFixed={async () => {
+                        await vm.resetFixedBudget();
+                        setShowResetModal(false);
+                    }}
+                    onResetVariable={async () => {
+                        await vm.resetVariableBudget();
+                        setShowResetModal(false);
+                    }}
+                    onSaveFixed={async (payload) => {
+                        await vm.updateFixedEntries(payload);
+                        setShowResetModal(false);
+                    }}
+                    budget={vm.budget}
+                />
             </View>
-        </ScrollView>
+        </View>
     );
 }
 
 // Vores layout og styling (kun layout, farver tilpasses senere)
 const styles = StyleSheet.create({
+    screen: {
+        backgroundColor: "#FFFFFF",
+        flex: 1,
+    },
+    scroll: {
+        backgroundColor: "#FFFFFF",
+    },
     container: {
         backgroundColor: "#FFFFFF",
         paddingTop: 24,
-        paddingBottom: 24,
+        paddingBottom: 140,
+        flexGrow: 1,
     },
     topBar: {
         flexDirection: "row",
@@ -112,6 +318,7 @@ const styles = StyleSheet.create({
         paddingBottom: 8,
         marginTop: 26,
     },
+
     navIcon: {
         fontSize: 22,
         paddingHorizontal: 8,
@@ -141,17 +348,16 @@ const styles = StyleSheet.create({
         gap: 8,
     },
     editCircle: {
-        width: 28,
-        height: 28,
-        borderRadius: 14,
+        width: 44,
+        height: 44,
+        borderRadius: 22,
         alignItems: "center",
         justifyContent: "center",
-        borderWidth: 1,
-        borderColor: "#2F70FF",
+        backgroundColor: "#2F70FF",
     },
     editIcon: {
-        fontSize: 14,
-        color: "#2F70FF",
+        fontSize: 20,
+        color: "#FFFFFF",
     },
     balanceAmount: {
         fontSize: 20,
@@ -194,31 +400,6 @@ const styles = StyleSheet.create({
         marginTop: 16,
         marginBottom: 8,
     },
-    circle: {
-        width: 120,
-        height: 120,
-        borderRadius: 60,
-        borderWidth: 6,
-    },
-    legendRow: {
-        flexDirection: "row",
-        gap: 16,
-        marginTop: 8,
-    },
-    legendItem: {
-        flexDirection: "row",
-        alignItems: "center",
-        gap: 6,
-    },
-    legendDot: {
-        width: 8,
-        height: 8,
-        borderRadius: 4,
-        borderWidth: 1,
-    },
-    legendText: {
-        fontSize: 12,
-    },
     alertBox: {
         marginTop: 8,
         marginHorizontal: 16,
@@ -249,10 +430,163 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         padding: 12,
     },
+    categoryListCard: {
+        paddingVertical: 6,
+    },
+    categoryRow: {
+        flexDirection: "row",
+        alignItems: "center",
+        gap: 12,
+        paddingVertical: 12,
+    },
+    categoryIcon: {
+        width: 34,
+        height: 34,
+        borderRadius: 17,
+        backgroundColor: "#E5EDFF",
+        alignItems: "center",
+        justifyContent: "center",
+    },
+    categoryIconText: {
+        fontSize: 16,
+    },
+    categoryName: {
+        flex: 1,
+        fontSize: 14,
+        fontWeight: "600",
+        color: "#1F2937",
+    },
+    categoryAmount: {
+        fontSize: 14,
+        fontWeight: "700",
+        color: "#111827",
+    },
+
+    emptyState: {
+        fontSize: 12,
+        color: "#6B7280",
+        paddingVertical: 12,
+    },
+    categoryGroup: {
+        marginBottom: 16,
+    },
+    categoryHeader: {
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "space-between",
+        marginBottom: 8,
+    },
+    categoryTitle: {
+        fontSize: 14,
+        fontWeight: "600",
+    },
+    categoryTotal: {
+        fontSize: 14,
+        fontWeight: "700",
+    },
+    expenseCard: {
+        borderRadius: 14,
+        borderWidth: 1,
+        paddingVertical: 12,
+        paddingHorizontal: 14,
+        marginBottom: 10,
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "space-between",
+    },
+    expenseName: {
+        fontSize: 14,
+        fontWeight: "600",
+    },
+    expenseAmount: {
+        fontSize: 14,
+        fontWeight: "700",
+    },
+
+    // VIGTIGT for scroll i card
+    expenseListCard: {
+        padding: 16,
+        maxHeight: 420, // justér efter behov
+    },
+    expenseInnerScroll: {
+        // valgfri
+    },
+    // UI til "Seneste transaktioner"
+    transactionCard: {
+        backgroundColor: "#FFFFFF",
+        borderRadius: 14,
+        padding: 12,
+        marginBottom: 16,
+        borderWidth: 1,
+        borderColor: "#E5E7EB",
+        maxHeight: 220, // låser højden så ScrollView kan rulle
+    },
+    transactionScroll: {
+        flexGrow: 0, // sørger for at ScrollView ikke vokser til alt indhold
+    },
+    transactionRow: {
+        flexDirection: "row",
+        alignItems: "center",
+        gap: 10,
+    },
+    transactionIcon: {
+        width: 32,
+        height: 32,
+        borderRadius: 16,
+        backgroundColor: "#F3F4F6",
+        alignItems: "center",
+        justifyContent: "center",
+    },
+    transactionIconText: {
+        fontSize: 12,
+        fontWeight: "700",
+        color: "#374151",
+    },
+    transactionInfo: {
+        flex: 1,
+    },
+    transactionTitle: {
+        fontSize: 14,
+        fontWeight: "600",
+        color: "#111827",
+    },
+    transactionMeta: {
+        fontSize: 12,
+        color: "#6B7280",
+        marginTop: 2,
+    },
+    transactionAmount: {
+        fontSize: 14,
+        fontWeight: "700",
+        color: "#111827",
+        marginRight: 8,
+    },
+    transactionActions: {
+        flexDirection: "row",
+        gap: 8,
+    },
+    transactionActionBtn: {
+        width: 24,
+        height: 24,
+        borderRadius: 12,
+        alignItems: "center",
+        justifyContent: "center",
+    },
+    transactionActionText: {
+        fontSize: 14,
+    },
+
     footer: {
-        marginTop: 16,
+        position: "absolute",
+        left: 0,
+        right: 0,
+        bottom: 20,
         paddingHorizontal: 16,
         paddingBottom: 16,
+        paddingTop: 8,
+        backgroundColor: "#FFFFFF",
+        borderTopWidth: 1,
+        borderTopColor: "#E5E7EB",
     },
     primaryButton: {
         alignItems: "center",
@@ -265,3 +599,4 @@ const styles = StyleSheet.create({
         fontWeight: "700",
     },
 });
+

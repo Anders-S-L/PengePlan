@@ -10,6 +10,14 @@ const EMPTY_BUDGET = {
     variableExpenses: [],
 };
 
+export function createEmptyBudget() {
+    return {
+        fixedIncome: [],
+        variableIncome: [],
+        fixedExpenses: [],
+        variableExpenses: [],
+    };
+}
 // bruges til at hente budget
 export async function loadBudget() {
     const json = await AsyncStorage.getItem(STORAGE_KEY);
@@ -25,6 +33,12 @@ export async function loadBudget() {
 export async function saveBudget(budget) {
     const json = JSON.stringify(budget);
     await AsyncStorage.setItem(STORAGE_KEY, json);
+}
+
+export async function resetBudget() {
+    const empty = createEmptyBudget();
+    await saveBudget(empty);
+    return empty;
 }
 
 // henter faste indtægter
