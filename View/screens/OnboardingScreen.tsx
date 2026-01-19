@@ -11,7 +11,6 @@ import {
 import { useState } from "react";
 import { ScrollView } from "react-native";
 
-
 import { Card } from "../../components/UI/Card";
 import { AppText } from "../../components/UI/AppText";
 import { Button } from "../../components/UI/Button";
@@ -27,9 +26,8 @@ export default function OnboardingScreen({ onDone }: Probs) {
   const ob = useOnboardingViewModel();
   const vm = useBudgetViewModel();
   const onlyNumbers = (text: string) => {
-  return text.replace(/[^0-9]/g, "");
-};
-
+    return text.replace(/[^0-9]/g, "");
+  };
 
   const [incomeName, setIncomeName] = useState("");
   const [incomeAmount, setIncomeAmount] = useState("");
@@ -143,7 +141,7 @@ export default function OnboardingScreen({ onDone }: Probs) {
             Tilføj din løn og andre faste indtægter.
           </AppText>
 
-           {/* Grøn boks med tilføjede indtægter */}
+          {/* Grøn boks med tilføjede indtægter */}
           {vm.budget?.fixedIncome?.length > 0 && (
             <View style={styles.addedIncomeBox}>
               {vm.budget.fixedIncome.map((x, i) => (
@@ -169,8 +167,8 @@ export default function OnboardingScreen({ onDone }: Probs) {
             <Input
               value={incomeAmount}
               onChangeText={(text) => setIncomeAmount(onlyNumbers(text))}
-  keyboardType="numeric"
-  placeholder="fx 20000"
+              keyboardType="numeric"
+              placeholder="fx 20000"
             />
 
             <View style={{ marginTop: theme.spacing.lg }}>
@@ -192,67 +190,67 @@ export default function OnboardingScreen({ onDone }: Probs) {
     }
     // Step 2: faste omkostninger
     if (ob.currentStep === 2) {
-  const hasExpenses = (vm.budget?.fixedExpenses?.length ?? 0) > 0;
+      const hasExpenses = (vm.budget?.fixedExpenses?.length ?? 0) > 0;
 
-  return (
-    <>
-      <AppText variant="h4" style={styles.title}>
-        Faste omkostninger
-      </AppText>
+      return (
+        <>
+          <AppText variant="h4" style={styles.title}>
+            Faste omkostninger
+          </AppText>
 
-      <AppText style={styles.subtitle}>
-        Tilføj husleje, abonnementer og andre faste udgifter.
-      </AppText>
+          <AppText style={styles.subtitle}>
+            Tilføj husleje, abonnementer og andre faste udgifter.
+          </AppText>
 
-      {/* 🔴 RØD BOKS – tilføjede udgifter */}
-      {hasExpenses && (
-        <View style={styles.addedExpenseBox}>
-          {vm.budget.fixedExpenses.map((x, i) => (
-            <View key={i} style={styles.addedExpenseRow}>
-              <AppText style={styles.addedExpenseName}>{x.name}</AppText>
-              <AppText style={styles.addedExpenseAmount}>
-                −{Number(x.amount).toLocaleString("da-DK")} kr./måned
+          {/* 🔴 RØD BOKS – tilføjede udgifter */}
+          {hasExpenses && (
+            <View style={styles.addedExpenseBox}>
+              {vm.budget.fixedExpenses.map((x, i) => (
+                <View key={i} style={styles.addedExpenseRow}>
+                  <AppText style={styles.addedExpenseName}>{x.name}</AppText>
+                  <AppText style={styles.addedExpenseAmount}>
+                    −{Number(x.amount).toLocaleString("da-DK")} kr./måned
+                  </AppText>
+                </View>
+              ))}
+            </View>
+          )}
+
+          <Card style={styles.innerCard}>
+            <AppText>Navn</AppText>
+            <Input
+              value={expenseName}
+              onChangeText={setExpenseName}
+              placeholder="Husleje"
+            />
+
+            <AppText style={{ marginTop: theme.spacing.md }}>Beløb</AppText>
+            <Input
+              value={expenseAmount}
+              onChangeText={(text) => setExpenseAmount(onlyNumbers(text))}
+              keyboardType="numeric"
+              placeholder="fx 8000"
+            />
+
+            <View style={{ marginTop: theme.spacing.lg }}>
+              <Button title="Tilføj udgift" onPress={addFixedExpense} />
+            </View>
+          </Card>
+
+          {/* 🔵 BLÅ BOKS – total udgifter (samme stil som indtægter) */}
+          {hasExpenses && (
+            <View style={styles.totalIncomeBox}>
+              <AppText style={styles.totalIncomeLabel}>
+                Total omkostninger
+              </AppText>
+              <AppText style={styles.totalIncomeValue}>
+                {vm.totals.expenses.toLocaleString("da-DK")} kr./måned
               </AppText>
             </View>
-          ))}
-        </View>
-      )}
-
-      <Card style={styles.innerCard}>
-        <AppText>Navn</AppText>
-        <Input
-          value={expenseName}
-          onChangeText={setExpenseName}
-          placeholder="Husleje"
-        />
-
-        <AppText style={{ marginTop: theme.spacing.md }}>Beløb</AppText>
-        <Input
-          value={expenseAmount}
-          onChangeText={(text) => setExpenseAmount(onlyNumbers(text))}
-  keyboardType="numeric"
-  placeholder="fx 8000"
-        />
-
-        <View style={{ marginTop: theme.spacing.lg }}>
-          <Button title="Tilføj udgift" onPress={addFixedExpense} />
-        </View>
-      </Card>
-
-      {/* 🔵 BLÅ BOKS – total udgifter (samme stil som indtægter) */}
-      {hasExpenses && (
-        <View style={styles.totalIncomeBox}>
-          <AppText style={styles.totalIncomeLabel}>
-            Total omkostninger
-          </AppText>
-          <AppText style={styles.totalIncomeValue}>
-            {vm.totals.expenses.toLocaleString("da-DK")} kr./måned
-          </AppText>
-        </View>
-      )}
-    </>
-  );
-}
+          )}
+        </>
+      );
+    }
 
     // Step 3: klar
     return (
@@ -287,34 +285,48 @@ export default function OnboardingScreen({ onDone }: Probs) {
     );
   }
   return (
-    <SafeAreaView style={styles.container}>
-      <Card style={styles.outerCard} padded>
-  <ScrollView
-    contentContainerStyle={styles.scrollContent}
-    showsVerticalScrollIndicator={false}
-  >
-    {stepContent()}
-  </ScrollView>
+  <SafeAreaView style={styles.container}>
+    <Card style={styles.outerCard} padded>
+      {/* 🔙 BACK BUTTON */}
+      {ob.currentStep > 0 && (
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={ob.prevStep}
+          activeOpacity={0.7}
+        >
+          <Text style={styles.backIcon}>‹</Text>
+          <Text style={styles.backText}>Tilbage</Text>
+        </TouchableOpacity>
+      )}
 
-  <View style={styles.footer}>
-    <Button title={ctaLabel} onPress={handleNext} />
+      {/* 🧭 SCROLLABLE CONTENT */}
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
+        {stepContent()}
+      </ScrollView>
 
-    <View style={styles.dotContainer}>
-      {Array.from({ length: ob.totalSteps }).map((_, index) => (
-        <View
-          key={index}
-          style={[
-            styles.dot,
-            ob.currentStep === index && styles.activeDot,
-          ]}
-        />
-      ))}
-    </View>
-  </View>
-</Card>
+      {/* ⬇️ FOOTER */}
+      <View style={styles.footer}>
+        <Button title={ctaLabel} onPress={handleNext} />
 
-    </SafeAreaView>
-  );
+        <View style={styles.dotContainer}>
+          {Array.from({ length: ob.totalSteps }).map((_, index) => (
+            <View
+              key={index}
+              style={[
+                styles.dot,
+                ob.currentStep === index && styles.activeDot,
+              ]}
+            />
+          ))}
+        </View>
+      </View>
+    </Card>
+  </SafeAreaView>
+);
+
 }
 
 const styles = StyleSheet.create({
@@ -465,38 +477,57 @@ const styles = StyleSheet.create({
   },
 
   addedExpenseBox: {
-  backgroundColor: "#FEF2F2",
-  borderRadius: 14,
-  padding: 14,
-  marginTop: theme.spacing.md,
-  borderWidth: 1,
-  borderColor: "#FECACA",
-},
+    backgroundColor: "#FEF2F2",
+    borderRadius: 14,
+    padding: 14,
+    marginTop: theme.spacing.md,
+    borderWidth: 1,
+    borderColor: "#FECACA",
+  },
 
-addedExpenseRow: {
-  flexDirection: "column",
-},
+  addedExpenseRow: {
+    flexDirection: "column",
+  },
 
-addedExpenseName: {
-  fontWeight: "600",
-  fontSize: 15,
-  color: "#7F1D1D",
-},
+  addedExpenseName: {
+    fontWeight: "600",
+    fontSize: 15,
+    color: "#7F1D1D",
+  },
 
-addedExpenseAmount: {
-  marginTop: 4,
-  fontSize: 14,
-  fontWeight: "600",
-  color: "#DC2626",
-},
+  addedExpenseAmount: {
+    marginTop: 4,
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#DC2626",
+  },
 
-scrollContent: {
-  paddingBottom: theme.spacing.xl,
-},
+  scrollContent: {
+    paddingBottom: theme.spacing.xl,
+  },
 
-footer: {
-  marginTop: "auto",
-},
+  footer: {
+    marginTop: "auto",
+  },
+  backButton: {
+    position: "absolute",
+    top: theme.spacing.md,
+    left: theme.spacing.md,
+    flexDirection: "row",
+    alignItems: "center",
+    zIndex: 10,
+  },
 
+  backIcon: {
+    fontSize: 28,
+    lineHeight: 28,
+    marginRight: 4,
+    color: "#4F7CFF",
+  },
 
+  backText: {
+    fontSize: 15,
+    fontWeight: "500",
+    color: "#4F7CFF",
+  },
 });

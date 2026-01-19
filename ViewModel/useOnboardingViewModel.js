@@ -12,11 +12,16 @@ export function useOnboardingViewModel() {
         }
 
     };
+    function prevStep() {
+    setCurrentStep((s) => Math.max(0, s - 1));
+}
+
 
     return {
         currentStep,
         nextStep,
         isLastStep,
         totalSteps,
+        prevStep
     };
 }
