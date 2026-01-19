@@ -35,14 +35,6 @@ export function BudgetOverview({ onResetAll }) {
         { name: "Rådighedsbeløb", value: vm.disposable },
     ];
 
-    // Formaterer beløb med . og kr. og mellemrum for negative tal
-        const formatSignedAmount = (value) => {
-        const amount = Math.abs(Number(value) || 0).toLocaleString("da-DK");
-        const sign = value < 0 ? "- " : "";
-        return `${sign}${amount} kr.`;
-    };
-    const råd = formatSignedAmount(vm.disposable);
-
     const budgetUsage = vm.budgetUsage ?? { spentPercent: 0, overBudgetPercent: 0, isOverBudget: false };
     const { spentPercent, overBudgetPercent, isOverBudget } = budgetUsage;
 
@@ -54,6 +46,47 @@ export function BudgetOverview({ onResetAll }) {
         const amount = Number(value) || 0;
         return `${amount.toLocaleString("da-DK")} kr.`;
     };
+    const raad = vm.disposable + " kr.";
+    // Emoji til hver kategori (bruger en fallback hvis vi ikke kender kategorien)
+    const categoryEmojiMap = {
+        Mad: "🍽️",
+        Transport: "🚌",
+        Hjem: "🏠",
+        Shopping: "🛍️",
+        Underholdning: "🎮",
+        Faste_udgifter: "🧾",
+        Andet: "💸",
+    };
+    // Hjælper til at vælge emoji ud fra kategori
+    const getCategoryEmoji = (category) => categoryEmojiMap[category] || "💼";
+    // Finder totals pr. kategori (kun beløb, ikke enkelt-udgifter)
+    const categoryTotals = vm.sortedExpenseCategories.map((category) => {
+        const entries = vm.expensesByCategory?.[category] ?? [];
+        const total = entries.reduce((sum, expense) => sum + (Number(expense.amount) || 0), 0);
+        return { category, total };
+    });
+    // Finder de nyeste transaktioner ud fra allerede eksisterende data
+    const recentTransactions = Object.entries(vm.expensesByCategory ?? {})
+        .flatMap(([category, expenses]) =>
+            (expenses ?? []).map((expense) => ({
+                ...expense,
+                category: expense.category || category || "Andet",
+            }))
+        )
+        .sort((a, b) => {
+            const dateDiff = (b.createdAt || 0) - (a.createdAt || 0);
+            if (dateDiff !== 0) return dateDiff;
+            return (a.name || "").localeCompare(b.name || "", "da-DK");
+        });
+    // Vi viser alle, fordi ScrollView tager sig af at man kan rulle
+    // Dato-format til visning i listen
+    const formatDate = (timestamp) => {
+        if (!timestamp) return "";
+        return new Date(timestamp).toLocaleDateString("da-DK", {
+            day: "numeric",
+            month: "short",
+        });
+    };
 
     return (
         <View style={styles.screen}>
@@ -61,7 +94,7 @@ export function BudgetOverview({ onResetAll }) {
                 {/* Topbar med måned */}
                 <View style={styles.topBar}>
                     <Text style={styles.navIcon}>{"<"}</Text>
-                    <Text style={styles.monthTitle}>Oktober 2025</Text>
+                    <Text style={styles.monthTitle}>Januar 2026</Text>
                     <Text style={styles.navIcon}>{">"}</Text>
                 </View>
 
@@ -78,16 +111,7 @@ export function BudgetOverview({ onResetAll }) {
                             >
                                 <Text style={styles.editIcon}>✎</Text>
                             </TouchableOpacity>
-                            
-                            {/* Ændrer farven i rådighedsbeløbet til rød eller grøn */}
-                            <Text
-                                style={[
-                                    styles.balanceAmount,
-                                    vm.disposable < 0 ? styles.amountNegative : styles.amountPositive,
-                                ]}
-                            >
-                                {råd}
-                            </Text>
+                            <Text style={styles.balanceAmount}>{raad}</Text>
                         </View>
                         <Text style={styles.calendarIcon}>📅</Text>
                     </View>
@@ -132,18 +156,16 @@ export function BudgetOverview({ onResetAll }) {
 
                 {activeTab === "overblik" ? (
                     <>
-                        {/* Cirkeldiagram OBS: Skal ændres til den rigtige model, det her er bare Billede*/}
+                        {/* Cirkeldiagram med budgetbrug */}
                         <View style={styles.circleSection}>
                             <HjulUdseende budget={vm.budget} />
                         </View>
 
-                        {/* Budget overskredet boks */}
-                        {isOverBudget && (
-                            <View style={styles.overBudgetBox}>
-                                <Text style={styles.overBudgetTitle}>⚠️ Budget overskredet</Text>
-                                <Text style={styles.overBudgetText}>{alertText}</Text>
-                            </View>
-                        )}
+                        {/* Det her er advarslen til brugeren om at budgetet er overskredet (eller ikke) */}
+                        <View style={styles.alertBox}>
+                            <Text style={styles.alertTitle}>{alertTitle}</Text>
+                            <Text style={styles.alertText}>{alertText}</Text>
+                        </View>
 
                         {/* Månedsoversigt */}
                         <View style={styles.section}>
@@ -157,59 +179,89 @@ export function BudgetOverview({ onResetAll }) {
                 ) : (
                     <View style={styles.section}>
                         <Text style={styles.sectionTitle}>Kategorier</Text>
+                        <Card style={styles.categoryListCard}>
+                            {categoryTotals.length === 0 ? (
+                                <Text style={styles.emptyState}>Ingen udgifter endnu.</Text>
+                            ) : (
+                                categoryTotals.map((item) => (
+                                    <View key={item.category} style={styles.categoryRow}>
+                                        <View style={styles.categoryIcon}>
+                                            <Text style={styles.categoryIconText}>
+                                                {getCategoryEmoji(item.category)}
+                                            </Text>
+                                        </View>
+                                        <Text style={styles.categoryName}>{item.category}</Text>
+                                        <Text style={styles.categoryAmount}>
+                                            {formatAmount(item.total)}
+                                        </Text>
+                                    </View>
+                                ))
+                            )}
+                        </Card>
 
-                        <Card style={styles.expenseListCard}>
+                        {/* Seneste transaktioner (rigtige data) */}
+                        <Text style={styles.sectionTitle}>Seneste transaktioner</Text>
+                        <View style={styles.transactionCard}>
+                            {/* ScrollView så man kan rulle på listen og se flere transaktioner uden at ødelægge resten af skærmen */}
                             <ScrollView
-                                style={styles.expenseInnerScroll}
+                                style={styles.transactionScroll}
                                 nestedScrollEnabled
+                                scrollEnabled
                                 showsVerticalScrollIndicator
                             >
-                                {vm.sortedExpenseCategories.length === 0 ? (
-                                    <Text style={styles.emptyState}>Ingen udgifter endnu.</Text>
+                                {recentTransactions.length === 0 ? (
+                                    <Text style={styles.emptyState}>Ingen transaktioner endnu.</Text>
                                 ) : (
-                                    vm.sortedExpenseCategories.map((category) => {
-                                        const categoryExpenses = (vm.expensesByCategory?.[category] ?? [])
-                                            .slice()
-                                            .sort((a, b) => {
-                                                const dateDiff = (b.createdAt || 0) - (a.createdAt || 0);
-                                                if (dateDiff !== 0) return dateDiff;
-                                                return (a.name || "").localeCompare(b.name || "", "da-DK");
-                                            });
-
-                                        const categoryTotal = categoryExpenses.reduce(
-                                            (sum, expense) => sum + (Number(expense.amount) || 0),
-                                            0
-                                        );
-
+                                    recentTransactions.map((expense, index) => {
+                                        const dateLabel = formatDate(expense.createdAt);
+                                        const icon = getCategoryEmoji(expense.category);
                                         return (
-                                            <View key={category} style={styles.categoryGroup}>
-                                                <View style={styles.categoryHeader}>
-                                                    <Text style={styles.categoryTitle}>{category}</Text>
-                                                    <Text style={styles.categoryTotal}>{formatAmount(categoryTotal)}</Text>
+                                            <View
+                                                key={`${expense.name}-${expense.createdAt ?? index}`}
+                                                style={styles.transactionRow}
+                                            >
+                                                <View style={styles.transactionIcon}>
+                                                    <Text style={styles.transactionIconText}>{icon}</Text>
                                                 </View>
-
-                                                {categoryExpenses.map((expense, index) => (
-                                                    <View
-                                                        key={`${category}-${expense.name}-${expense.createdAt ?? index}`}
-                                                        style={styles.expenseCard}
+                                                <View style={styles.transactionInfo}>
+                                                    <Text style={styles.transactionTitle}>{expense.name}</Text>
+                                                    <Text style={styles.transactionMeta}>
+                                                        {expense.category}{dateLabel ? ` - ${dateLabel}` : ""}
+                                                    </Text>
+                                                </View>
+                                                <Text style={styles.transactionAmount}>
+                                                    -{formatAmount(expense.amount)}
+                                                </Text>
+                                                {/* Det her er vores knapper til redigering og sletning af transaktioner. OBS: Skal ændres til rigtige knapper når det er lavet.*/}
+                                                <View style={styles.transactionActions}>
+                                                    <TouchableOpacity
+                                                        style={styles.transactionActionBtn}
+                                                        onPress={() => { }}
+                                                        accessibilityRole="button"
+                                                        accessibilityLabel="Rediger transaktion"
                                                     >
-                                                        <Text style={styles.expenseName}>{expense.name}</Text>
-                                                        <Text style={styles.expenseAmount}>
-                                                            {formatAmount(expense.amount)}
-                                                        </Text>
-                                                    </View>
-                                                ))}
+                                                        <Text style={styles.transactionActionText}>✏️</Text>
+                                                    </TouchableOpacity>
+                                                    <TouchableOpacity
+                                                        style={styles.transactionActionBtn}
+                                                        onPress={() => { }}
+                                                        accessibilityRole="button"
+                                                        accessibilityLabel="Slet transaktion"
+                                                    >
+                                                        <Text style={styles.transactionActionText}>🗑️</Text>
+                                                    </TouchableOpacity>
+                                                </View>
                                             </View>
                                         );
                                     })
                                 )}
                             </ScrollView>
-                        </Card>
+                        </View>
                     </View>
                 )}
             </ScrollView>
 
-            {/* Primar knap */}
+            {/* Primær knap (tilføj udgift) */}
             <View style={styles.footer}>
                 <Button title="+  Ny udgift" onPress={() => setShowModal(true)} />
                 <AddVariableExpenseModal
@@ -370,33 +422,36 @@ const styles = StyleSheet.create({
         borderWidth: 0,
         padding: 12,
     },
-    budgetStatusText: {
-        fontSize: 12,
-        marginTop: 8,
-        color: "#374151",
-        textAlign: "center",
-    },
-    overBudgetBox: {
-        marginTop: 8,
-        alignSelf: "center",
-        alignItems: "center",
-        width: "60%",
+    categoryListCard: {
         paddingVertical: 6,
-        paddingHorizontal: 10,
-        borderRadius: 12,
-        borderWidth: 1,
-        borderColor: "#FCA5A5",
-        backgroundColor: "#FEE2E2",
     },
-    overBudgetTitle: {
-        fontSize: 12,
+    categoryRow: {
+        flexDirection: "row",
+        alignItems: "center",
+        gap: 12,
+        paddingVertical: 12,
+    },
+    categoryIcon: {
+        width: 34,
+        height: 34,
+        borderRadius: 17,
+        backgroundColor: "#E5EDFF",
+        alignItems: "center",
+        justifyContent: "center",
+    },
+    categoryIconText: {
+        fontSize: 16,
+    },
+    categoryName: {
+        flex: 1,
+        fontSize: 14,
+        fontWeight: "600",
+        color: "#1F2937",
+    },
+    categoryAmount: {
+        fontSize: 14,
         fontWeight: "700",
-        color: "#B91C1C",
-        marginBottom: 4,
-    },
-    overBudgetText: {
-        fontSize: 12,
-        color: "#B91C1C",
+        color: "#111827",
     },
 
     emptyState: {
@@ -447,6 +502,70 @@ const styles = StyleSheet.create({
     },
     expenseInnerScroll: {
         // valgfri
+    },
+    // UI til "Seneste transaktioner"
+    transactionCard: {
+        backgroundColor: "#FFFFFF",
+        borderRadius: 14,
+        padding: 12,
+        marginBottom: 16,
+        borderWidth: 1,
+        borderColor: "#E5E7EB",
+        maxHeight: 220, // låser højden så ScrollView kan rulle
+    },
+    transactionScroll: {
+        flexGrow: 0, // sørger for at ScrollView ikke vokser til alt indhold
+    },
+    transactionRow: {
+        flexDirection: "row",
+        alignItems: "center",
+        gap: 10,
+    },
+    transactionIcon: {
+        width: 32,
+        height: 32,
+        borderRadius: 16,
+        backgroundColor: "#F3F4F6",
+        alignItems: "center",
+        justifyContent: "center",
+    },
+    transactionIconText: {
+        fontSize: 12,
+        fontWeight: "700",
+        color: "#374151",
+    },
+    transactionInfo: {
+        flex: 1,
+    },
+    transactionTitle: {
+        fontSize: 14,
+        fontWeight: "600",
+        color: "#111827",
+    },
+    transactionMeta: {
+        fontSize: 12,
+        color: "#6B7280",
+        marginTop: 2,
+    },
+    transactionAmount: {
+        fontSize: 14,
+        fontWeight: "700",
+        color: "#111827",
+        marginRight: 8,
+    },
+    transactionActions: {
+        flexDirection: "row",
+        gap: 8,
+    },
+    transactionActionBtn: {
+        width: 24,
+        height: 24,
+        borderRadius: 12,
+        alignItems: "center",
+        justifyContent: "center",
+    },
+    transactionActionText: {
+        fontSize: 14,
     },
 
     footer: {
