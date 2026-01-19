@@ -1,8 +1,15 @@
-
-import React from 'react';
-import { useOnboardingViewModel } from '../../ViewModel/useOnboardingViewModel';
-import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, Image } from 'react-native';
-import { useState } from 'react';
+import React from "react";
+import { useOnboardingViewModel } from "../../ViewModel/useOnboardingViewModel";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  SafeAreaView,
+  Image,
+} from "react-native";
+import { useState } from "react";
+import { ScrollView } from "react-native";
 
 
 import { Card } from "../../components/UI/Card";
@@ -10,16 +17,19 @@ import { AppText } from "../../components/UI/AppText";
 import { Button } from "../../components/UI/Button";
 import { theme } from "../../styles/theme";
 import { Input } from "../../components/UI/Input";
-import { useBudgetViewModel } from '../../ViewModel/Budget/useBudgetViewModel';
-
+import { useBudgetViewModel } from "../../ViewModel/Budget/useBudgetViewModel";
 
 type Probs = {
   onDone: () => void;
-}
+};
 
 export default function OnboardingScreen({ onDone }: Probs) {
   const ob = useOnboardingViewModel();
   const vm = useBudgetViewModel();
+  const onlyNumbers = (text: string) => {
+  return text.replace(/[^0-9]/g, "");
+};
+
 
   const [incomeName, setIncomeName] = useState("");
   const [incomeAmount, setIncomeAmount] = useState("");
@@ -42,22 +52,28 @@ export default function OnboardingScreen({ onDone }: Probs) {
   };
 
   const parseAmount = (s: string) => {
-    const n = Number(s.replace(",", ".").trim())
+    const n = Number(s.replace(",", ".").trim());
     return Number.isFinite(n) ? n : null;
-  }
+  };
 
   const ctaLabel = ob.isLastStep() ? "Kom i gang" : "Næste";
 
   async function addFixedIncome() {
     if (!incomeName || !incomeAmount) return;
-    await vm.addFixedIncome({ name: incomeName, amount: parseFloat(incomeAmount) });
+    await vm.addFixedIncome({
+      name: incomeName,
+      amount: parseFloat(incomeAmount),
+    });
     setIncomeName("");
     setIncomeAmount("");
   }
 
   async function addFixedExpense() {
     if (!expenseName || !expenseAmount) return;
-    await vm.addFixedExpense({ name: expenseName, amount: parseFloat(expenseAmount) });
+    await vm.addFixedExpense({
+      name: expenseName,
+      amount: parseFloat(expenseAmount),
+    });
     setExpenseName("");
     setExpenseAmount("");
   }
@@ -65,16 +81,12 @@ export default function OnboardingScreen({ onDone }: Probs) {
   function handleNext() {
     if (ob.isLastStep()) {
       onDone();
-    }
-    else {
+    } else {
       ob.nextStep();
     }
   }
 
-
-
   function stepContent() {
-
     // step 0 velkomst
 
     if (ob.currentStep === 0) {
@@ -92,18 +104,33 @@ export default function OnboardingScreen({ onDone }: Probs) {
           </AppText>
 
           <AppText style={styles.subtitle}>
-            Lad os opsætte dit månedlige budget sammen. Det tager kun et øjeblik.
+            Lad os opsætte dit månedlige budget sammen. Det tager kun et
+            øjeblik.
           </AppText>
 
           <View style={styles.steps}>
-            <Step number="1" color="#4F7CFF" title="Faste indtægter" text="Indtast din løn og andre faste indtægter" />
-            <Step number="2" color="#9B5CFF" title="Faste omkostninger" text="Tilføj husleje, abonnementer og andre faste udgifter" />
-            <Step number="3" color="#4CD964" title="Klar til at bruge!" text="Dit budget er sat op og klar hver måned" />
+            <Step
+              number="1"
+              color="#4F7CFF"
+              title="Faste indtægter"
+              text="Indtast din løn og andre faste indtægter"
+            />
+            <Step
+              number="2"
+              color="#9B5CFF"
+              title="Faste omkostninger"
+              text="Tilføj husleje, abonnementer og andre faste udgifter"
+            />
+            <Step
+              number="3"
+              color="#4CD964"
+              title="Klar til at bruge!"
+              text="Dit budget er sat op og klar hver måned"
+            />
           </View>
         </>
       );
     }
-
 
     if (ob.currentStep === 1) {
       return (
@@ -115,16 +142,35 @@ export default function OnboardingScreen({ onDone }: Probs) {
           <AppText style={styles.subtitle}>
             Tilføj din løn og andre faste indtægter.
           </AppText>
+
+           {/* Grøn boks med tilføjede indtægter */}
+          {vm.budget?.fixedIncome?.length > 0 && (
+            <View style={styles.addedIncomeBox}>
+              {vm.budget.fixedIncome.map((x, i) => (
+                <View key={i} style={styles.addedIncomeRow}>
+                  <AppText style={styles.addedIncomeName}>{x.name}</AppText>
+                  <AppText style={styles.addedIncomeAmount}>
+                    +{Number(x.amount).toLocaleString("da-DK")} kr./måned
+                  </AppText>
+                </View>
+              ))}
+            </View>
+          )}
+
           <Card style={styles.innerCard}>
             <AppText>Navn</AppText>
-            <Input value={incomeName} onChangeText={setIncomeName} placeholder="Løn" />
+            <Input
+              value={incomeName}
+              onChangeText={setIncomeName}
+              placeholder="Løn"
+            />
 
             <AppText style={{ marginTop: theme.spacing.md }}>Beløb</AppText>
             <Input
               value={incomeAmount}
-              onChangeText={setIncomeAmount}
-              keyboardType="numeric"
-              placeholder="fx 20000"
+              onChangeText={(text) => setIncomeAmount(onlyNumbers(text))}
+  keyboardType="numeric"
+  placeholder="fx 20000"
             />
 
             <View style={{ marginTop: theme.spacing.lg }}>
@@ -132,58 +178,82 @@ export default function OnboardingScreen({ onDone }: Probs) {
             </View>
           </Card>
 
-          {/* Lille liste (valgfrit men fedt) */}
-          <View style={{ marginTop: theme.spacing.lg }}>
-            <AppText style={{ fontWeight: "600" }}>Tilføjet:</AppText>
-            {vm.budget?.fixedIncome?.map((x, i) => (
-              <AppText key={i}>
-                {x.name}: {Number(x.amount).toLocaleString("da-DK")} kr.
+          {/* Total indtægter */}
+          {vm.budget?.fixedIncome?.length > 0 && (
+            <View style={styles.totalIncomeBox}>
+              <AppText style={styles.totalIncomeLabel}>Total indtægter</AppText>
+              <AppText style={styles.totalIncomeValue}>
+                {vm.totals.income.toLocaleString("da-DK")} kr./måned
               </AppText>
-            ))}
-          </View>
+            </View>
+          )}
         </>
       );
     }
     // Step 2: faste omkostninger
     if (ob.currentStep === 2) {
-      return (
-        <>
-          <AppText variant="h4" style={styles.title}>
-            Faste omkostninger
-          </AppText>
+  const hasExpenses = (vm.budget?.fixedExpenses?.length ?? 0) > 0;
 
-          <AppText style={styles.subtitle}>
-            Tilføj husleje, abonnementer og andre faste udgifter.
-          </AppText>
+  return (
+    <>
+      <AppText variant="h4" style={styles.title}>
+        Faste omkostninger
+      </AppText>
 
-          <Card style={styles.innerCard}>
-            <AppText>Navn</AppText>
-            <Input value={expenseName} onChangeText={setExpenseName} placeholder="Husleje" />
+      <AppText style={styles.subtitle}>
+        Tilføj husleje, abonnementer og andre faste udgifter.
+      </AppText>
 
-            <AppText style={{ marginTop: theme.spacing.md }}>Beløb</AppText>
-            <Input
-              value={expenseAmount}
-              onChangeText={setExpenseAmount}
-              keyboardType="numeric"
-              placeholder="fx 8000"
-            />
-
-            <View style={{ marginTop: theme.spacing.lg }}>
-              <Button title="Tilføj udgift" onPress={addFixedExpense} />
-            </View>
-          </Card>
-
-          <View style={{ marginTop: theme.spacing.lg }}>
-            <AppText style={{ fontWeight: "600" }}>Tilføjet:</AppText>
-            {vm.budget?.fixedExpenses?.map((x, i) => (
-              <AppText key={i}>
-                {x.name}: {Number(x.amount).toLocaleString("da-DK")} kr.
+      {/* 🔴 RØD BOKS – tilføjede udgifter */}
+      {hasExpenses && (
+        <View style={styles.addedExpenseBox}>
+          {vm.budget.fixedExpenses.map((x, i) => (
+            <View key={i} style={styles.addedExpenseRow}>
+              <AppText style={styles.addedExpenseName}>{x.name}</AppText>
+              <AppText style={styles.addedExpenseAmount}>
+                −{Number(x.amount).toLocaleString("da-DK")} kr./måned
               </AppText>
-            ))}
-          </View>
-        </>
-      );
-    }
+            </View>
+          ))}
+        </View>
+      )}
+
+      <Card style={styles.innerCard}>
+        <AppText>Navn</AppText>
+        <Input
+          value={expenseName}
+          onChangeText={setExpenseName}
+          placeholder="Husleje"
+        />
+
+        <AppText style={{ marginTop: theme.spacing.md }}>Beløb</AppText>
+        <Input
+          value={expenseAmount}
+          onChangeText={(text) => setExpenseAmount(onlyNumbers(text))}
+  keyboardType="numeric"
+  placeholder="fx 8000"
+        />
+
+        <View style={{ marginTop: theme.spacing.lg }}>
+          <Button title="Tilføj udgift" onPress={addFixedExpense} />
+        </View>
+      </Card>
+
+      {/* 🔵 BLÅ BOKS – total udgifter (samme stil som indtægter) */}
+      {hasExpenses && (
+        <View style={styles.totalIncomeBox}>
+          <AppText style={styles.totalIncomeLabel}>
+            Total omkostninger
+          </AppText>
+          <AppText style={styles.totalIncomeValue}>
+            {vm.totals.expenses.toLocaleString("da-DK")} kr./måned
+          </AppText>
+        </View>
+      )}
+    </>
+  );
+}
+
     // Step 3: klar
     return (
       <>
@@ -196,8 +266,12 @@ export default function OnboardingScreen({ onDone }: Probs) {
         </AppText>
 
         <Card style={styles.innerCard}>
-          <AppText>Faste indtægter: {vm.totals.income.toLocaleString("da-DK")} kr.</AppText>
-          <AppText>Faste udgifter: {vm.totals.expenses.toLocaleString("da-DK")} kr.</AppText>
+          <AppText>
+            Faste indtægter: {vm.totals.income.toLocaleString("da-DK")} kr.
+          </AppText>
+          <AppText>
+            Faste udgifter: {vm.totals.expenses.toLocaleString("da-DK")} kr.
+          </AppText>
           <AppText style={{ marginTop: theme.spacing.md, fontWeight: "700" }}>
             Rådighedsbeløb: {vm.disposable.toLocaleString("da-DK")} kr.
           </AppText>
@@ -215,21 +289,30 @@ export default function OnboardingScreen({ onDone }: Probs) {
   return (
     <SafeAreaView style={styles.container}>
       <Card style={styles.outerCard} padded>
-        {stepContent()}
+  <ScrollView
+    contentContainerStyle={styles.scrollContent}
+    showsVerticalScrollIndicator={false}
+  >
+    {stepContent()}
+  </ScrollView>
 
-        <View style={{ marginTop: "auto" }}>
-          <Button title={ctaLabel} onPress={handleNext} />
+  <View style={styles.footer}>
+    <Button title={ctaLabel} onPress={handleNext} />
 
-          <View style={styles.dotContainer}>
-            {Array.from({ length: ob.totalSteps }).map((_, index) => (
-              <View
-                key={index}
-                style={[styles.dot, ob.currentStep === index && styles.activeDot]}
-              />
-            ))}
-          </View>
-        </View>
-      </Card>
+    <View style={styles.dotContainer}>
+      {Array.from({ length: ob.totalSteps }).map((_, index) => (
+        <View
+          key={index}
+          style={[
+            styles.dot,
+            ob.currentStep === index && styles.activeDot,
+          ]}
+        />
+      ))}
+    </View>
+  </View>
+</Card>
+
     </SafeAreaView>
   );
 }
@@ -296,7 +379,6 @@ const styles = StyleSheet.create({
     marginTop: 4,
     flexDirection: "row",
     alignItems: "center",
-
   },
   stepContent: {
     flexDirection: "column",
@@ -332,7 +414,89 @@ const styles = StyleSheet.create({
     color: "#6B7280",
     marginTop: 2,
   },
+  addedIncomeBox: {
+    backgroundColor: "#ECFDF3",
+    borderRadius: 14,
+    padding: 14,
+    marginTop: theme.spacing.md,
+    borderWidth: 1,
+    borderColor: "#BBF7D0",
+  },
+
+  addedIncomeRow: {
+    flexDirection: "column",
+  },
+
+  addedIncomeName: {
+    fontWeight: "600",
+    fontSize: 15,
+    color: "#065F46",
+  },
+
+  addedIncomeAmount: {
+    marginTop: 4,
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#16A34A",
+  },
+
+  totalIncomeBox: {
+    marginTop: theme.spacing.lg,
+    backgroundColor: "#EFF6FF",
+    borderRadius: 14,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: "#BFDBFE",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+
+  totalIncomeLabel: {
+    fontSize: 15,
+    fontWeight: "600",
+    color: "#1E40AF",
+  },
+
+  totalIncomeValue: {
+    fontSize: 17,
+    fontWeight: "700",
+    color: "#2563EB",
+  },
+
+  addedExpenseBox: {
+  backgroundColor: "#FEF2F2",
+  borderRadius: 14,
+  padding: 14,
+  marginTop: theme.spacing.md,
+  borderWidth: 1,
+  borderColor: "#FECACA",
+},
+
+addedExpenseRow: {
+  flexDirection: "column",
+},
+
+addedExpenseName: {
+  fontWeight: "600",
+  fontSize: 15,
+  color: "#7F1D1D",
+},
+
+addedExpenseAmount: {
+  marginTop: 4,
+  fontSize: 14,
+  fontWeight: "600",
+  color: "#DC2626",
+},
+
+scrollContent: {
+  paddingBottom: theme.spacing.xl,
+},
+
+footer: {
+  marginTop: "auto",
+},
+
+
 });
-
-
-
