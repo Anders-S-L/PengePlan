@@ -9,7 +9,14 @@ import { calculateDisposableAmount, calculateTotals } from "../../Model/rådighe
 import { loadBudget, resetBudget, saveBudget } from "../../Services/storage";
 
 // ViewModel helper-funktioner: rene funktioner der returnerer et nyt budget-objekt
-import { addFixedIncome, addFixedExpense, addVariableIncome, addVariableExpense } from "./addEntries";
+import {
+  addFixedIncome,
+  addFixedExpense,
+  addVariableIncome,
+  addVariableExpense,
+  updateVariableExpense,
+  removeVariableExpense,
+} from "./addEntries";
 
 export function useBudgetViewModel() {
   // budget indeholder HELE budget-objektet:
@@ -87,6 +94,18 @@ export function useBudgetViewModel() {
     if (!budget) return;
 
     const next = addVariableExpense(budget, entry);
+    await commit(next);
+  }
+  // Update an existing variable expense.
+  async function handleUpdateVariableExpense(entry) {
+    if (!budget) return;
+    const next = updateVariableExpense(budget, entry);
+    await commit(next);
+  }
+  // Remove a variable expense.
+  async function handleRemoveVariableExpense(createdAt) {
+    if (!budget) return;
+    const next = removeVariableExpense(budget, createdAt);
     await commit(next);
   }
 
@@ -199,6 +218,8 @@ export function useBudgetViewModel() {
     addFixedExpense: handleAddFixedExpense,
     addVariableIncome: handleAddVariableIncome,
     addVariableExpense: handleAddVariableExpense,
+    updateVariableExpense: handleUpdateVariableExpense,
+    removeVariableExpense: handleRemoveVariableExpense,
     resetBudget: handleResetBudget,
     resetAllBudget: handleResetAllBudget,
     resetFixedBudget: handleResetFixedBudget,

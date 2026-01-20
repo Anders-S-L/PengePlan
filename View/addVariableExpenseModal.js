@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useEffect, useState } from "react";
 import { Modal, View } from "react-native";
 import { AppText } from "../components/UI/AppText";
 import { Button } from "../components/UI/Button";
@@ -16,11 +16,38 @@ const categories = [
     "Andet",
 ];
 
-export function AddVariableExpenseModal({ visible, onClose, onSubmit }) {
+export function AddVariableExpenseModal({
+    visible,
+    onClose,
+    onSubmit,
+    initialExpense = null,
+    title = "Tilføj ny udgift",
+    submitLabel = "Tilføj",
+}) {
     const [name, setName] = useState("");
     const [amount, setAmount] = useState("");
     const [isLuxury, setIsLuxury] = useState(false);
     const [category, setCategory] = useState(categories[0]);
+
+    // Fill fields when editing, reset when adding.
+    useEffect(() => {
+        if (!visible) return;
+        if (!initialExpense) {
+            setName("");
+            setAmount("");
+            setIsLuxury(false);
+            setCategory(categories[0]);
+            return;
+        }
+        setName(initialExpense.name ?? "");
+        setAmount(
+            initialExpense.amount !== undefined && initialExpense.amount !== null
+                ? String(initialExpense.amount)
+                : ""
+        );
+        setIsLuxury(Boolean(initialExpense.isLuxury));
+        setCategory(initialExpense.category || categories[0]);
+    }, [visible, initialExpense]);
 
     async function handleAdd() {
         if (!name || !amount) return;
@@ -30,7 +57,8 @@ export function AddVariableExpenseModal({ visible, onClose, onSubmit }) {
             amount: parseFloat(amount),
             category,
             isLuxury,
-            createdAt: Date.now(),
+            // Keep createdAt when editing.
+            createdAt: initialExpense?.createdAt ?? Date.now(),
         });
 
         setName("");
@@ -44,7 +72,7 @@ export function AddVariableExpenseModal({ visible, onClose, onSubmit }) {
             <View style={{ flex: 1, justifyContent: "center", padding: 16, backgroundColor: "rgba(0,0,0,0.3)" }}>
                 <Card>
 
-                    <AppText variant="h4">Tilføj ny udgift</AppText>
+                    <AppText variant="h4">{title}</AppText>
                     <AppText variant="p">Kategori</AppText>
 
                     <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8, marginTop: 8 }}>
@@ -79,10 +107,11 @@ export function AddVariableExpenseModal({ visible, onClose, onSubmit }) {
                     <View style={{ flexDirection: "row", gap: 12, marginTop: 16, justifyContent: "flex-end" }}>
                         <Button title="Annuller" onPress={onClose} />
 
-                        <Button title="Tilføj" onPress={handleAdd} />
+                        <Button title={submitLabel} onPress={handleAdd} />
                     </View>
                 </Card>
             </View>
         </Modal>
     );
 }
+

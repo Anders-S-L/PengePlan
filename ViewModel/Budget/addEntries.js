@@ -13,4 +13,28 @@ export function addVariableIncome(budget, entry) {
 }
 export function addVariableExpense(budget, entry) {
     return { ...budget, variableExpenses: [...budget.variableExpenses, entry] };
-}   
+}
+
+// Update a variable expense by createdAt (unique id).
+export function updateVariableExpense(budget, updatedEntry) {
+    if (!updatedEntry?.createdAt) return budget;
+    return {
+        ...budget,
+        variableExpenses: budget.variableExpenses.map((entry) =>
+            entry?.createdAt === updatedEntry.createdAt
+                ? { ...entry, ...updatedEntry }
+                : entry
+        ),
+    };
+}
+
+// Remove a variable expense by createdAt.
+export function removeVariableExpense(budget, createdAt) {
+    if (!createdAt) return budget;
+    return {
+        ...budget,
+        variableExpenses: budget.variableExpenses.filter(
+            (entry) => entry?.createdAt !== createdAt
+        ),
+    };
+}

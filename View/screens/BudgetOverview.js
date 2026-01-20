@@ -1,7 +1,7 @@
 ﻿// Dette er vores forside skaerm der viser budgetoversigten.
 
 import React from "react";
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from "react-native";
 import { useState } from "react";
 import { useEffect, useRef } from "react";
 import { useBudgetViewModel } from "../../ViewModel/Budget/useBudgetViewModel";
@@ -12,6 +12,7 @@ import { Button } from "../../components/UI/Button";
 import { HjulUdseende } from "./hjulUdseende";
 import { ResetBudgetModal } from "../resetBudgetModal";
 import { Card } from "../../components/UI/Card";
+import { theme } from "../../styles/theme";
 
 
 export function BudgetOverview({ onResetAll }) {
@@ -20,6 +21,25 @@ export function BudgetOverview({ onResetAll }) {
     const [showModal, setShowModal] = useState(false);
     const [showResetModal, setShowResetModal] = useState(false);
     const [activeTab, setActiveTab] = useState("overblik");
+    const [showEditModal, setShowEditModal] = useState(false);
+    const [editExpense, setEditExpense] = useState(null);
+
+    // Confirm before deleting a variable expense
+    const confirmDeleteExpense = (createdAt) => {
+        if (!createdAt) return;
+        Alert.alert(
+            "Slet udgift",
+            "Er du sikker på at du vil slette denne udgift?",
+            [
+                { text: "Nej", style: "cancel" },
+                {
+                    text: "Ja",
+                    style: "destructive",
+                    onPress: () => vm.removeVariableExpense(createdAt),
+                },
+            ]
+        );
+    };
 
     if (vm.isLoading) return <Text>Indlæser...</Text>;
     if (!vm.budget) return <Text>Ingen budget endnu</Text>;
@@ -40,7 +60,7 @@ export function BudgetOverview({ onResetAll }) {
         const sign = value < 0 ? "- " : "";
         return `${sign}${amount} kr.`;
     };
-    const råd = formatSignedAmount(vm.disposable);
+    const raad = formatSignedAmount(vm.disposable);
 
     const budgetUsage = vm.budgetUsage ?? { spentPercent: 0, overBudgetPercent: 0, isOverBudget: false };
     const { spentPercent, overBudgetPercent, isOverBudget } = budgetUsage;
@@ -53,7 +73,6 @@ export function BudgetOverview({ onResetAll }) {
         const amount = Number(value) || 0;
         return `${amount.toLocaleString("da-DK")} kr.`;
     };
-    const raad = vm.disposable + " kr.";
     // Emoji til hver kategori (bruger en fallback hvis vi ikke kender kategorien)
     const categoryEmojiMap = {
         Mad: "🍽️",
@@ -124,7 +143,7 @@ export function BudgetOverview({ onResetAll }) {
                                     styles.balanceAmount,
                                 ]}
                             >
-                                {råd}
+                                {raad}
                             </Text>
                         </View>
                         <Text style={styles.calendarIcon}>📅</Text>
@@ -230,6 +249,7 @@ export function BudgetOverview({ onResetAll }) {
                                     recentTransactions.map((expense, index) => {
                                         const dateLabel = formatDate(expense.createdAt);
                                         const icon = getCategoryEmoji(expense.category);
+                                        const isEditable = Boolean(expense.createdAt);
                                         return (
                                             <View
                                                 key={`${expense.name}-${expense.createdAt ?? index}`}
@@ -248,24 +268,33 @@ export function BudgetOverview({ onResetAll }) {
                                                     -{formatAmount(expense.amount)}
                                                 </Text>
                                                 {/* Det her er vores knapper til redigering og sletning af transaktioner. OBS: Skal ændres til rigtige knapper når det er lavet.*/}
-                                                <View style={styles.transactionActions}>
-                                                    <TouchableOpacity
-                                                        style={styles.transactionActionBtn}
-                                                        onPress={() => { }}
-                                                        accessibilityRole="button"
-                                                        accessibilityLabel="Rediger transaktion"
-                                                    >
-                                                        <Text style={styles.transactionActionText}>✏️</Text>
-                                                    </TouchableOpacity>
-                                                    <TouchableOpacity
-                                                        style={styles.transactionActionBtn}
-                                                        onPress={() => { }}
-                                                        accessibilityRole="button"
-                                                        accessibilityLabel="Slet transaktion"
-                                                    >
-                                                        <Text style={styles.transactionActionText}>🗑️</Text>
-                                                    </TouchableOpacity>
-                                                </View>
+                                                {isEditable ? (
+                                                    <View style={styles.transactionActions}>
+                                                        <TouchableOpacity
+                                                            style={[styles.transactionActionBtn, styles.transactionActionBtnEdit]}
+                                                            onPress={() => {
+                                                                // Open edit modal with the selected expense.
+                                                                setEditExpense(expense);
+                                                                setShowEditModal(true);
+                                                            }}
+                                                            accessibilityRole="button"
+                                                            accessibilityLabel="Rediger transaktion"
+                                                        >
+                                                            <Text style={styles.transactionActionText}>✎</Text>
+                                                        </TouchableOpacity>
+                                                        <TouchableOpacity
+                                                            style={[styles.transactionActionBtn, styles.transactionActionBtnDelete]}
+                                                            onPress={() => {
+                                                                // Remove expense via ViewModel.
+                                                                confirmDeleteExpense(expense.createdAt);
+                                                            }}
+                                                            accessibilityRole="button"
+                                                            accessibilityLabel="Slet transaktion"
+                                                        >
+                                                            <Text style={styles.transactionActionTextDelete}>🗑</Text>
+                                                        </TouchableOpacity>
+                                                    </View>
+                                                ) : null}
                                             </View>
                                         );
                                     })
@@ -283,6 +312,23 @@ export function BudgetOverview({ onResetAll }) {
                     visible={showModal}
                     onClose={() => setShowModal(false)}
                     onSubmit={vm.addVariableExpense}
+                />
+                <AddVariableExpenseModal
+                    visible={showEditModal}
+                    onClose={() => {
+                        // Close edit modal and clear selection.
+                        setShowEditModal(false);
+                        setEditExpense(null);
+                    }}
+                    onSubmit={async (payload) => {
+                        // Save edited expense via ViewModel.
+                        await vm.updateVariableExpense(payload);
+                        setShowEditModal(false);
+                        setEditExpense(null);
+                    }}
+                    initialExpense={editExpense}
+                    title="Rediger udgift"
+                    submitLabel="Gem"
                 />
                 <ResetBudgetModal
                     visible={showResetModal}
@@ -440,6 +486,7 @@ const styles = StyleSheet.create({
         fontSize: 14,
         fontWeight: "600",
         marginBottom: 0,
+        color: theme.colors.textPrimary,
     },
     listCard: {
         borderRadius: 12,
@@ -450,6 +497,7 @@ const styles = StyleSheet.create({
         marginTop: 2,
         paddingVertical: 6,
         marginBottom: 8,
+        backgroundColor: theme.colors.background,
     },
     categoryRow: {
         flexDirection: "row",
@@ -461,7 +509,7 @@ const styles = StyleSheet.create({
         width: 34,
         height: 34,
         borderRadius: 17,
-        backgroundColor: "#E5EDFF",
+        backgroundColor: theme.colors.surface,
         alignItems: "center",
         justifyContent: "center",
     },
@@ -472,12 +520,12 @@ const styles = StyleSheet.create({
         flex: 1,
         fontSize: 14,
         fontWeight: "600",
-        color: "#1F2937",
+        color: theme.colors.textPrimary,
     },
     categoryAmount: {
         fontSize: 14,
         fontWeight: "700",
-        color: "#111827",
+        color: theme.colors.textPrimary,
     },
     budgetStatusText: {
         fontSize: 12,
@@ -510,7 +558,7 @@ const styles = StyleSheet.create({
 
     emptyState: {
         fontSize: 12,
-        color: "#6B7280",
+        color: theme.colors.textSecondary,
         paddingVertical: 12,
     },
     categoryGroup: {
@@ -560,12 +608,12 @@ const styles = StyleSheet.create({
     // UI til "Seneste transaktioner"
     transactionCard: {
         marginTop: 2,
-        backgroundColor: "#FFFFFF",
+        backgroundColor: theme.colors.background,
         borderRadius: 14,
         padding: 12,
         marginBottom: 16,
         borderWidth: 1,
-        borderColor: "#E5E7EB",
+        borderColor: theme.colors.border,
         maxHeight: 220, // låser højden så ScrollView kan rulle
     },
     transactionScroll: {
@@ -574,54 +622,67 @@ const styles = StyleSheet.create({
     transactionRow: {
         flexDirection: "row",
         alignItems: "center",
-        gap: 10,
-        paddingVertical: 8,
+        gap: 14,
+        paddingVertical: 12,
     },
     transactionIcon: {
-        width: 32,
-        height: 32,
-        borderRadius: 16,
-        backgroundColor: "#F3F4F6",
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        backgroundColor: theme.colors.surface,
         alignItems: "center",
         justifyContent: "center",
     },
     transactionIconText: {
-        fontSize: 12,
+        fontSize: 14,
         fontWeight: "700",
-        color: "#374151",
+        color: theme.colors.textSecondary,
     },
     transactionInfo: {
         flex: 1,
     },
     transactionTitle: {
-        fontSize: 14,
+        fontSize: 15,
         fontWeight: "600",
-        color: "#111827",
+        color: theme.colors.textPrimary,
     },
     transactionMeta: {
-        fontSize: 12,
-        color: "#6B7280",
+        fontSize: 13,
+        color: theme.colors.textSecondary,
         marginTop: 2,
     },
     transactionAmount: {
-        fontSize: 14,
+        fontSize: 15,
         fontWeight: "700",
-        color: "#111827",
+        color: theme.colors.textPrimary,
         marginRight: 8,
     },
     transactionActions: {
         flexDirection: "row",
-        gap: 8,
+        gap: 10,
     },
     transactionActionBtn: {
-        width: 24,
-        height: 24,
-        borderRadius: 12,
+        width: 30,
+        height: 30,
+        borderRadius: 15,
         alignItems: "center",
         justifyContent: "center",
     },
+    transactionActionBtnEdit: {
+        borderWidth: 1,
+        borderColor: theme.colors.primary,
+    },
+    transactionActionBtnDelete: {
+        borderWidth: 1,
+        borderColor: theme.colors.primary,
+    },
     transactionActionText: {
-        fontSize: 14,
+        fontSize: 16,
+        color: theme.colors.primary,
+    },
+    transactionActionTextDelete: {
+        fontSize: 12,
+        color: theme.colors.primary,
     },
 
     footer: {
@@ -647,3 +708,12 @@ const styles = StyleSheet.create({
         fontWeight: "700",
     },
 });
+
+
+
+
+
+
+
+
+
