@@ -123,6 +123,19 @@ export function useBudgetViewModel() {
     await commit(next);
   }
 
+  // Update an existing variable expense.
+  async function handleUpdateVariableExpense(entry) {
+    if (!budget) return;
+    const next = updateVariableExpense(budget, entry);
+    await commit(next);
+  }
+  // Remove a variable expense.
+  async function handleRemoveVariableExpense(createdAt) {
+    if (!budget) return;
+    const next = removeVariableExpense(budget, createdAt);
+    await commit(next);
+  }
+
   async function handleResetBudget(options = {}) {
     if (!budget) return;
     const { fixed = true, variable = true } = options;
@@ -146,6 +159,7 @@ export function useBudgetViewModel() {
 
     await commit(next);
   }
+
   async function handleResetAllBudget() {
     await handleResetBudget();
   }

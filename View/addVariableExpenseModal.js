@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Modal, Pressable, StyleSheet, View } from "react-native";
+import { Modal, Pressable, StyleSheet, View, Keyboard, TouchableWithoutFeedback } from "react-native";
 import { AppText } from "../components/UI/AppText";
 import { Button } from "../components/UI/Button";
 import { Input } from "../components/UI/Input";
@@ -70,135 +70,137 @@ export function AddVariableExpenseModal({
 
     return (
         <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
-            <View style={styles.overlay}>
-                <Card style={styles.modalCard}>
-                    <View style={styles.headerRow}>
-                        <View style={styles.headerText}>
-                            <AppText variant="h4" style={styles.title}>
-                                Tilføj ny udgift
-                            </AppText>
-                            <AppText variant="p" style={styles.subtitle}>
-                                Udfyld felterne nedenfor og vælg en kategori.
-                            </AppText>
+            <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+                <View style={styles.overlay} >
+                    <Card style={styles.modalCard}>
+                        <View style={styles.headerRow}>
+                            <View style={styles.headerText}>
+                                <AppText variant="h4" style={styles.title}>
+                                    Tilføj ny udgift
+                                </AppText>
+                                <AppText variant="p" style={styles.subtitle}>
+                                    Udfyld felterne nedenfor og vælg en kategori.
+                                </AppText>
+                            </View>
+
+                            <Pressable
+                                onPress={onClose}
+                                hitSlop={12}
+                                style={({ pressed }) => [styles.closeButton, pressed && styles.closeButtonPressed]}
+                            >
+                                <AppText style={styles.closeButtonText}>✕</AppText>
+                            </Pressable>
                         </View>
 
-                        <Pressable
-                            onPress={onClose}
-                            hitSlop={12}
-                            style={({ pressed }) => [styles.closeButton, pressed && styles.closeButtonPressed]}
-                        >
-                            <AppText style={styles.closeButtonText}>✕</AppText>
-                        </Pressable>
-                    </View>
+                        <View style={styles.section}>
+                            <AppText variant="p" style={styles.sectionLabel}>
+                                Kategori
+                            </AppText>
 
-                    <View style={styles.section}>
-                        <AppText variant="p" style={styles.sectionLabel}>
-                            Kategori
-                        </AppText>
+                            <Pressable
+                                onPress={() => setIsCategoryOpen((prev) => !prev)}
+                                style={({ pressed }) => [
+                                    styles.dropdownTrigger,
+                                    pressed && styles.dropdownTriggerPressed,
+                                ]}
+                            >
+                                <AppText style={styles.dropdownText}>{category}</AppText>
+                                <AppText style={styles.dropdownChevron}>{isCategoryOpen ? "▲" : "▼"}</AppText>
+                            </Pressable>
 
-                        <Pressable
-                            onPress={() => setIsCategoryOpen((prev) => !prev)}
-                            style={({ pressed }) => [
-                                styles.dropdownTrigger,
-                                pressed && styles.dropdownTriggerPressed,
-                            ]}
-                        >
-                            <AppText style={styles.dropdownText}>{category}</AppText>
-                            <AppText style={styles.dropdownChevron}>{isCategoryOpen ? "▲" : "▼"}</AppText>
-                        </Pressable>
+                            {isCategoryOpen && (
+                                <View style={styles.dropdownMenu}>
+                                    {categories.map((c, idx) => {
+                                        const isSelected = c === category;
+                                        const isLast = idx === categories.length - 1;
 
-                        {isCategoryOpen && (
-                            <View style={styles.dropdownMenu}>
-                                {categories.map((c, idx) => {
-                                    const isSelected = c === category;
-                                    const isLast = idx === categories.length - 1;
-
-                                    return (
-                                        <Pressable
-                                            key={c}
-                                            onPress={() => {
-                                                setCategory(c);
-                                                setIsCategoryOpen(false);
-                                            }}
-                                            style={({ pressed }) => [
-                                                styles.dropdownItem,
-                                                isSelected && styles.dropdownItemSelected,
-                                                pressed && styles.dropdownItemPressed,
-                                                isLast && styles.dropdownItemLast,
-                                            ]}
-                                        >
-                                            <AppText
-                                                style={[
-                                                    styles.dropdownItemText,
-                                                    isSelected && styles.dropdownItemTextSelected,
+                                        return (
+                                            <Pressable
+                                                key={c}
+                                                onPress={() => {
+                                                    setCategory(c);
+                                                    setIsCategoryOpen(false);
+                                                }}
+                                                style={({ pressed }) => [
+                                                    styles.dropdownItem,
+                                                    isSelected && styles.dropdownItemSelected,
+                                                    pressed && styles.dropdownItemPressed,
+                                                    isLast && styles.dropdownItemLast,
                                                 ]}
                                             >
-                                                {c}
-                                            </AppText>
-                                        </Pressable>
-                                    );
-                                })}
-                            </View>
-                        )}
-                    </View>
+                                                <AppText
+                                                    style={[
+                                                        styles.dropdownItemText,
+                                                        isSelected && styles.dropdownItemTextSelected,
+                                                    ]}
+                                                >
+                                                    {c}
+                                                </AppText>
+                                            </Pressable>
+                                        );
+                                    })}
+                                </View>
+                            )}
+                        </View>
 
-                    <View style={styles.section}>
-                        <Input
-                            label="Beskrivelse"
-                            value={name}
-                            onChangeText={setName}
-                            placeholder="fx Morgenmad"
-                        />
-                    </View>
+                        <View style={styles.section}>
+                            <Input
+                                label="Beskrivelse"
+                                value={name}
+                                onChangeText={setName}
+                                placeholder="fx Morgenmad"
+                            />
+                        </View>
 
-                    <View style={styles.section}>
-                        <Input
-                            label="Beløb (kr.)"
-                            value={amount}
-                            onChangeText={setAmount}
-                            placeholder="fx 150"
-                            keyboardType="numeric"
-                        />
-                    </View>
+                        <View style={styles.section}>
+                            <Input
+                                label="Beløb (kr.)"
+                                value={amount}
+                                onChangeText={setAmount}
+                                placeholder="fx 150"
+                                keyboardType="numeric"
+                            />
+                        </View>
 
-                    <View style={styles.switchRow}>
-                        <AppText style={styles.switchLabel}>Luksus udgift</AppText>
-                        <Switch
-                            value={isLuxury}
-                            onValueChange={setIsLuxury}
-                            trackColor={{
-                                false: theme.colors.border,
-                                true: theme.colors.luxury,
-                            }}
-                            thumbColor="#FFFFFF"
-                        />
-                    </View>
+                        <View style={styles.switchRow}>
+                            <AppText style={styles.switchLabel}>Luksus udgift</AppText>
+                            <Switch
+                                value={isLuxury}
+                                onValueChange={setIsLuxury}
+                                trackColor={{
+                                    false: theme.colors.border,
+                                    true: theme.colors.luxury,
+                                }}
+                                thumbColor="#FFFFFF"
+                            />
+                        </View>
 
-                    <View style={styles.actions}>
-                        <Pressable
-                            onPress={onClose}
-                            style={({ pressed }) => [
-                                styles.btn,
-                                styles.btnSecondary,
-                                pressed && styles.btnSecondaryPressed,
-                            ]}
-                        >
-                            <AppText style={styles.btnSecondaryText}>Annuller</AppText>
-                        </Pressable>
+                        <View style={styles.actions}>
+                            <Pressable
+                                onPress={onClose}
+                                style={({ pressed }) => [
+                                    styles.btn,
+                                    styles.btnSecondary,
+                                    pressed && styles.btnSecondaryPressed,
+                                ]}
+                            >
+                                <AppText style={styles.btnSecondaryText}>Annuller</AppText>
+                            </Pressable>
 
-                        <Pressable
-                            onPress={handleAdd}
-                            style={({ pressed }) => [
-                                styles.btn,
-                                styles.btnPrimary,
-                                pressed && styles.btnPrimaryPressed,
-                            ]}
-                        >
-                            <AppText style={styles.btnPrimaryText}>Tilføj</AppText>
-                        </Pressable>
-                    </View>
-                </Card>
-            </View>
+                            <Pressable
+                                onPress={handleAdd}
+                                style={({ pressed }) => [
+                                    styles.btn,
+                                    styles.btnPrimary,
+                                    pressed && styles.btnPrimaryPressed,
+                                ]}
+                            >
+                                <AppText style={styles.btnPrimaryText}>Tilføj</AppText>
+                            </Pressable>
+                        </View>
+                    </Card>
+                </View>
+            </TouchableWithoutFeedback>
         </Modal>
     );
 }

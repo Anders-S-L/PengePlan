@@ -1,7 +1,7 @@
 ﻿// Dette er vores forside skaerm der viser budgetoversigten.
 
 import React from "react";
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from "react-native";
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, Keyboard } from "react-native";
 import { useState } from "react";
 import { useEffect, useRef } from "react";
 import { useBudgetViewModel } from "../../ViewModel/Budget/useBudgetViewModel";
@@ -13,7 +13,7 @@ import { HjulUdseende } from "./hjulUdseende";
 import { ResetBudgetModal } from "../resetBudgetModal";
 import { Card } from "../../components/UI/Card";
 import { theme } from "../../styles/theme";
-import { theme } from "../../styles/theme";
+
 
 
 export function BudgetOverview({ onResetAll }) {
