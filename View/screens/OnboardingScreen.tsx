@@ -160,7 +160,7 @@ export default function OnboardingScreen({ onDone }: Probs) {
             <Input
               value={incomeName}
               onChangeText={setIncomeName}
-              placeholder="Løn"
+              placeholder="fx Løn"
             />
 
             <AppText style={{ marginTop: theme.spacing.md }}>Beløb</AppText>
