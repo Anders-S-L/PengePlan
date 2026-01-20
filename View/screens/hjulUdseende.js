@@ -74,7 +74,7 @@ export function HjulUdseende({ budget }) {
               cx={WHEEL_SIZE / 2}
               cy={WHEEL_SIZE / 2}
               r={RADIUS}
-              stroke={theme.colors.danger}
+              stroke={theme.colors.primary}
               strokeWidth={STROKE_WIDTH}
               strokeLinecap="round"
               strokeDasharray={`${normalLen} ${CIRCUMFERENCE - normalLen}`}
@@ -102,9 +102,9 @@ export function HjulUdseende({ budget }) {
 
         {/* Teksten som står i midten af hjulet */}
         <View style={styles.centerLabel}>
-          <Text style={styles.centerLabelTitle}>Brugt</Text>
-          <Text style={styles.centerLabelValue}>
-            {formatKr(expenseTotal)}
+          <Text style={styles.centerLabelTitle}>Rådighed</Text>
+          <Text style={[styles.centerLabelValue,]}>
+            {formatKr(remaining)}
           </Text>
           <Text style={styles.centerLabelSub}>af {formatKr(incomeTotal)}</Text>
         </View>
@@ -113,7 +113,7 @@ export function HjulUdseende({ budget }) {
       <View style={styles.legendRow}>
         <View style={styles.legendItem}>
           <View
-            style={[styles.legendDot, { backgroundColor: theme.colors.danger }]}
+            style={[styles.legendDot, { backgroundColor: theme.colors.primary }]}
           />
           {/* Teksten som står under hjulet ("Almindelige" og "Lusksus" teksten)*/}
           <Text style={styles.legendText}>Almindelige</Text>
@@ -124,19 +124,6 @@ export function HjulUdseende({ budget }) {
           />
           <Text style={styles.legendText}>Luksus</Text>
         </View>
-      </View>
-      {/* Teksten som står under hjulet ("Tilbage" og "Brugt" teksten) */}
-      <View style={styles.summaryRow}>
-        <Text style={styles.summaryLabel}>Tilbage</Text>
-        <Text style={[styles.summaryValue, { color: remainingColor }]}>
-          {formatKr(remaining)}
-        </Text>
-      </View>
-      <View style={styles.summaryRow}>
-        <Text style={styles.summaryLabel}>Luksus brugt</Text>
-        <Text style={[styles.summaryValue, { color: theme.colors.luxury }]}>
-          {formatKr(luxuryTotal)}
-        </Text>
       </View>
     </View>
   );
@@ -172,7 +159,8 @@ const styles = StyleSheet.create({
   },
   centerLabelTitle: {
     fontSize: 12,
-    color: theme.colors.textSecondary,
+        fontWeight: "700",
+    color: theme.colors.textPrimary,
   },
   centerLabelValue: {
     fontSize: 16,

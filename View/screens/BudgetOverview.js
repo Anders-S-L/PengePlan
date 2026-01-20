@@ -32,7 +32,7 @@ export function BudgetOverview({ onResetAll }) {
         { name: "Variable udgifter", value: -vm.variableExpensesTotal },
         { name: "Luksus udgifter", value: -vm.luxuryExpensesTotal },
         { name: "Total brugt", value: -vm.totals.expenses },
-        { name: "Rådighedsbeløb", value: vm.disposable },
+       
     ];
     // Formaterer beløb med . og kr. og mellemrum for negative tal
     const formatSignedAmount = (value) => {
@@ -122,7 +122,6 @@ export function BudgetOverview({ onResetAll }) {
                             <Text
                                 style={[
                                     styles.balanceAmount,
-                                    vm.disposable < 0 ? styles.amountNegative : styles.amountPositive,
                                 ]}
                             >
                                 {råd}
@@ -351,7 +350,8 @@ const styles = StyleSheet.create({
         marginBottom: 12,
     },
     label: {
-        fontSize: 12,
+        fontSize: 14,
+        fontWeight: "600",
     },
     balanceRow: {
         flexDirection: "row",
@@ -401,6 +401,7 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         gap: 20,
         paddingHorizontal: 16,
+        justifyContent: "center",
         marginTop: 16,
     },
     tabItem: {
@@ -446,13 +447,15 @@ const styles = StyleSheet.create({
         padding: 12,
     },
     categoryListCard: {
+        marginTop: 2,
         paddingVertical: 6,
+        marginBottom: 8,
     },
     categoryRow: {
         flexDirection: "row",
         alignItems: "center",
         gap: 12,
-        paddingVertical: 12,
+        paddingVertical: 8,
     },
     categoryIcon: {
         width: 34,
@@ -556,6 +559,7 @@ const styles = StyleSheet.create({
     },
     // UI til "Seneste transaktioner"
     transactionCard: {
+        marginTop: 2,
         backgroundColor: "#FFFFFF",
         borderRadius: 14,
         padding: 12,
@@ -571,6 +575,7 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         alignItems: "center",
         gap: 10,
+        paddingVertical: 8,
     },
     transactionIcon: {
         width: 32,

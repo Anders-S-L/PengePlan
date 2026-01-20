@@ -11,7 +11,8 @@ export const theme = {
     background: "#FFFFFF",   // App-baggrund
     surface: "#DBEAFE",      // Cards, modals, inputs
     labelBg: "#F7F7F7",      // Label-baggrund (fx input labels)
-    divider: "#E5E7EB",      // Skillelinjer
+    divider: "#E5E7EB",      // Hjulet IKKE ÆNDRE
+    Skillelinjer: "#565555", // Skillelinjer
 
     // --- Text colors ---
     textPrimary: "#000000",  // Primær tekst (overskrifter, beløb)
@@ -40,6 +41,7 @@ export const theme = {
   // ----------------------------------
   // Bruges til padding, margin og gaps.
   spacing: {
+    xxs: 2,    // Ekstra meget små afstande
     xs: 4,    // Meget små afstande (ikon spacing)
     sm: 8,    // Små afstande
     md: 12,   // Standard spacing mellem elementer

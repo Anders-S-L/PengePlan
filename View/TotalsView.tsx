@@ -20,16 +20,15 @@ export function TotalsView({ totals }: Props) {
     return (
         <Card style={styles.card}>
             {totals.map((item, index) => {
-                const isPositive = item.value > 0;
-                const isNegative = item.value < 0;
+                const normalizedValue = Object.is(item.value, -0) ? 0 : item.value;
+                const isPositive = normalizedValue > 0;
+                const isNegative = normalizedValue < 0;
+                const isTotal = item.name === "Total brugt";
 
                 return (
                     <View
                         key={item.name}
-                        style={[
-                            styles.row,
-                            index !== totals.length - 1 && styles.divider,
-                        ]}
+                        style={[styles.row, isTotal && styles.totalDivider]}
                     >
                         <AppText style={styles.label}>{item.name}</AppText>
 
@@ -40,8 +39,8 @@ export function TotalsView({ totals }: Props) {
                                 isNegative && styles.negative,
                             ]}
                         >
-                            {item.value > 0 ? "+" : ""}
-                            {item.value.toLocaleString("da-DK")} kr.
+                            {isPositive ? "+" : ""}
+                            {normalizedValue.toLocaleString("da-DK")} kr.
                         </AppText>
                     </View>
                 );
@@ -60,9 +59,9 @@ const styles = StyleSheet.create({
         alignItems: "center",
         paddingVertical: theme.spacing.sm,
     },
-    divider: {
-        borderBottomWidth: 1,
-        borderBottomColor: theme.colors.divider,
+    totalDivider: {
+        borderTopWidth: 1,
+        borderTopColor: theme.colors.Skillelinjer,
     },
     label: {
         color: theme.colors.textSecondary,
