@@ -2,14 +2,21 @@
 
 import { useEffect, useState } from "react";
 
-import { calculateDisposableAmount, calculateTotals } from "../../Model/rådighedsbeløb";
-
+import {
+  calculateDisposableAmount,
+  calculateTotals,
+} from "../../Model/rådighedsbeløb";
 
 // Service-laget: henter og gemmer budgettet i AsyncStorage
 import { loadBudget, resetBudget, saveBudget } from "../../Services/storage";
 
 // ViewModel helper-funktioner: rene funktioner der returnerer et nyt budget-objekt
-import { addFixedIncome, addFixedExpense, addVariableIncome, addVariableExpense } from "./addEntries";
+import {
+  addFixedIncome,
+  addFixedExpense,
+  addVariableIncome,
+  addVariableExpense,
+} from "./addEntries";
 
 export function useBudgetViewModel() {
   // budget indeholder HELE budget-objektet:
@@ -26,8 +33,8 @@ export function useBudgetViewModel() {
   useEffect(() => {
     async function init() {
       const loaded = await loadBudget(); // hent fra AsyncStorage via service
-      setBudget(loaded);                 // opdater ViewModel-state
-      setIsLoading(false);               // signalér til UI at vi er klar
+      setBudget(loaded); // opdater ViewModel-state
+      setIsLoading(false); // signalér til UI at vi er klar
     }
 
     init();
@@ -83,10 +90,34 @@ export function useBudgetViewModel() {
     const next = addVariableIncome(budget, entry);
     await commit(next);
   }
+
   async function handleAddVariableExpense(entry) {
     if (!budget) return;
 
     const next = addVariableExpense(budget, entry);
+    await commit(next);
+  }
+  // 🟢 Fjern fast indtægt
+  async function handleRemoveFixedIncome(index) {
+    if (!budget) return;
+
+    const next = {
+      ...budget,
+      fixedIncome: budget.fixedIncome.filter((_, i) => i !== index),
+    };
+
+    await commit(next);
+  }
+
+  // 🔴 Fjern fast udgift
+  async function handleRemoveFixedExpense(index) {
+    if (!budget) return;
+
+    const next = {
+      ...budget,
+      fixedExpenses: budget.fixedExpenses.filter((_, i) => i !== index),
+    };
+
     await commit(next);
   }
 
@@ -128,12 +159,8 @@ export function useBudgetViewModel() {
   // View får kun det, den skal bruge:
   // state + actions
   const variableExpenses = budget?.variableExpenses ?? [];
-  const normalVariableExpenses = variableExpenses.filter(
-    (e) => !e.isLuxury
-  );
-  const luxuryExpenses = variableExpenses.filter(
-    (e) => e.isLuxury
-  );
+  const normalVariableExpenses = variableExpenses.filter((e) => !e.isLuxury);
+  const luxuryExpenses = variableExpenses.filter((e) => e.isLuxury);
 
   const expenses = [
     ...(budget?.fixedExpenses ?? []).map((expense) => ({
@@ -156,7 +183,7 @@ export function useBudgetViewModel() {
   }, {});
 
   const sortedExpenseCategories = Object.keys(expensesByCategory).sort((a, b) =>
-    a.localeCompare(b, "da-DK")
+    a.localeCompare(b, "da-DK"),
   );
 
   const totals = budget ? calculateTotals(budget) : { income: 0, expenses: 0 };
@@ -170,12 +197,15 @@ export function useBudgetViewModel() {
   const incomeTotal = Number(totals?.income ?? 0);
   const expensesTotal = Number(totals?.expenses ?? 0);
 
-  const spentPercentRaw = incomeTotal > 0 ? (expensesTotal / incomeTotal) * 100 : 0;
+  const spentPercentRaw =
+    incomeTotal > 0 ? (expensesTotal / incomeTotal) * 100 : 0;
 
   // 1 decimal i stedet for Math.round
   const spentPercent = Number(spentPercentRaw.toFixed(1));
 
-  const overBudgetPercent = Number(Math.max(spentPercentRaw - 100, 0).toFixed(1));
+  const overBudgetPercent = Number(
+    Math.max(spentPercentRaw - 100, 0).toFixed(1),
+  );
   const isOverBudget = spentPercentRaw > 100;
 
   return {
@@ -190,6 +220,8 @@ export function useBudgetViewModel() {
     luxuryExpensesTotal,
     expensesByCategory,
     sortedExpenseCategories,
+    handleRemoveFixedExpense,
+    handleRemoveFixedIncome,
     budgetUsage: {
       spentPercent,
       overBudgetPercent,
@@ -206,4 +238,3 @@ export function useBudgetViewModel() {
     updateFixedEntries: handleUpdateFixedEntries,
   };
 }
-

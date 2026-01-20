@@ -116,7 +116,7 @@ export default function OnboardingScreen({ onDone }: Probs) {
             <Step
               number="2"
               color="#9B5CFF"
-              title="Faste omkostninger"
+              title="Faste udgifter"
               text="Tilføj husleje, abonnementer og andre faste udgifter"
             />
             <Step
@@ -137,37 +137,58 @@ export default function OnboardingScreen({ onDone }: Probs) {
             Faste indtægter
           </AppText>
 
+          <AppText
+            style={{
+              textAlign: "center",
+              marginBottom: theme.spacing.sm,
+              color: theme.colors.textDisabled,
+              fontSize: 13,
+            }}
+          >
+            Trin 1 af 3
+          </AppText>
+
           <AppText style={styles.subtitle}>
-            Tilføj din løn og andre faste indtægter.
+            Først starter vi med dine faste indtægter. Hvad får du ind hver
+            måned?
           </AppText>
 
           {/* Grøn boks med tilføjede indtægter */}
           {vm.budget?.fixedIncome?.length > 0 && (
             <View style={styles.addedIncomeBox}>
               {vm.budget.fixedIncome.map((x, i) => (
-                <View key={i} style={styles.addedIncomeRow}>
-                  <AppText style={styles.addedIncomeName}>{x.name}</AppText>
-                  <AppText style={styles.addedIncomeAmount}>
-                    +{Number(x.amount).toLocaleString("da-DK")} kr./måned
-                  </AppText>
+                <View key={i} style={styles.addedItemRow}>
+                  <View>
+                    <AppText style={styles.addedIncomeName}>{x.name}</AppText>
+                    <AppText style={styles.addedIncomeAmount}>
+                      +{Number(x.amount).toLocaleString("da-DK")} kr./måned
+                    </AppText>
+                  </View>
+
+                  <TouchableOpacity
+                    onPress={() => vm.handleRemoveFixedIncome(i)}
+                    hitSlop={10}
+                  >
+                    <Text style={styles.deleteIcon}>✕</Text>
+                  </TouchableOpacity>
                 </View>
               ))}
             </View>
           )}
 
-          <Card style={styles.innerCard}>
-            <AppText>Navn</AppText>
+          <Card style={[styles.innerCard, { marginTop: theme.spacing.xl }]}>
+            <AppText>Type:</AppText>
             <Input
               value={incomeName}
               onChangeText={setIncomeName}
               placeholder="fx Løn"
             />
 
-            <AppText style={{ marginTop: theme.spacing.md }}>Beløb</AppText>
+            <AppText style={{ marginTop: theme.spacing.md }}>Beløb:</AppText>
             <Input
               value={incomeAmount}
               onChangeText={(text) => setIncomeAmount(onlyNumbers(text))}
-              keyboardType="numeric"
+              keyboardType="number-pad"
               placeholder="fx 20000"
             />
 
@@ -195,40 +216,60 @@ export default function OnboardingScreen({ onDone }: Probs) {
       return (
         <>
           <AppText variant="h4" style={styles.title}>
-            Faste omkostninger
+            Faste udgifter
+          </AppText>
+
+          <AppText
+            style={{
+              textAlign: "center",
+              marginBottom: theme.spacing.sm,
+              color: theme.colors.textDisabled,
+              fontSize: 13,
+            }}
+          >
+            Trin 2 af 3
           </AppText>
 
           <AppText style={styles.subtitle}>
-            Tilføj husleje, abonnementer og andre faste udgifter.
+            Næste skridt: Hvad betaler du fast hver måned?
           </AppText>
 
           {/* 🔴 RØD BOKS – tilføjede udgifter */}
           {hasExpenses && (
             <View style={styles.addedExpenseBox}>
               {vm.budget.fixedExpenses.map((x, i) => (
-                <View key={i} style={styles.addedExpenseRow}>
-                  <AppText style={styles.addedExpenseName}>{x.name}</AppText>
-                  <AppText style={styles.addedExpenseAmount}>
-                    −{Number(x.amount).toLocaleString("da-DK")} kr./måned
-                  </AppText>
+                <View key={i} style={styles.addedItemRow}>
+                  <View>
+                    <AppText style={styles.addedExpenseName}>{x.name}</AppText>
+                    <AppText style={styles.addedExpenseAmount}>
+                      −{Number(x.amount).toLocaleString("da-DK")} kr./måned
+                    </AppText>
+                  </View>
+
+                  <TouchableOpacity
+                    onPress={() => vm.handleRemoveFixedExpense(i)}
+                    hitSlop={10}
+                  >
+                    <Text style={styles.deleteIcon}>✕</Text>
+                  </TouchableOpacity>
                 </View>
               ))}
             </View>
           )}
 
-          <Card style={styles.innerCard}>
-            <AppText>Navn</AppText>
+          <Card style={[styles.innerCard, { marginTop: theme.spacing.xl }]}>
+            <AppText>Type:</AppText>
             <Input
               value={expenseName}
               onChangeText={setExpenseName}
-              placeholder="Husleje"
+              placeholder="fx Husleje"
             />
 
-            <AppText style={{ marginTop: theme.spacing.md }}>Beløb</AppText>
+            <AppText style={{ marginTop: theme.spacing.md }}>Beløb:</AppText>
             <Input
               value={expenseAmount}
               onChangeText={(text) => setExpenseAmount(onlyNumbers(text))}
-              keyboardType="numeric"
+              keyboardType="number-pad"
               placeholder="fx 8000"
             />
 
@@ -241,7 +282,7 @@ export default function OnboardingScreen({ onDone }: Probs) {
           {hasExpenses && (
             <View style={styles.totalIncomeBox}>
               <AppText style={styles.totalIncomeLabel}>
-                Total omkostninger
+                Samlede udgifter
               </AppText>
               <AppText style={styles.totalIncomeValue}>
                 {vm.totals.expenses.toLocaleString("da-DK")} kr./måned
@@ -259,11 +300,22 @@ export default function OnboardingScreen({ onDone }: Probs) {
           Klar til at bruge!
         </AppText>
 
+        <AppText
+          style={{
+            textAlign: "center",
+            marginBottom: theme.spacing.sm,
+            color: theme.colors.textDisabled,
+            fontSize: 13,
+          }}
+        >
+          Trin 3 af 3
+        </AppText>
+
         <AppText style={styles.subtitle}>
           Dit budget er sat op. Tryk “Kom i gang” for at se dit overblik.
         </AppText>
 
-        <Card style={styles.innerCard}>
+        <Card style={[styles.innerCard, { marginTop: theme.spacing.xl }]}>
           <AppText>
             Faste indtægter: {vm.totals.income.toLocaleString("da-DK")} kr.
           </AppText>
@@ -285,48 +337,47 @@ export default function OnboardingScreen({ onDone }: Probs) {
     );
   }
   return (
-  <SafeAreaView style={styles.container}>
-    <Card style={styles.outerCard} padded>
-      {/* 🔙 BACK BUTTON */}
-      {ob.currentStep > 0 && (
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={ob.prevStep}
-          activeOpacity={0.7}
+    <SafeAreaView style={styles.container}>
+      <Card style={styles.outerCard} padded>
+        {/* 🔙 BACK BUTTON */}
+        {ob.currentStep > 0 && (
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={ob.prevStep}
+            activeOpacity={0.7}
+          >
+            <Text style={styles.backIcon}>‹</Text>
+            <Text style={styles.backText}>Tilbage</Text>
+          </TouchableOpacity>
+        )}
+
+        {/* 🧭 SCROLLABLE CONTENT */}
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
         >
-          <Text style={styles.backIcon}>‹</Text>
-          <Text style={styles.backText}>Tilbage</Text>
-        </TouchableOpacity>
-      )}
+          {stepContent()}
+        </ScrollView>
 
-      {/* 🧭 SCROLLABLE CONTENT */}
-      <ScrollView
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-      >
-        {stepContent()}
-      </ScrollView>
+        {/* ⬇️ FOOTER */}
+        <View style={styles.footer}>
+          <Button title={ctaLabel} onPress={handleNext} />
 
-      {/* ⬇️ FOOTER */}
-      <View style={styles.footer}>
-        <Button title={ctaLabel} onPress={handleNext} />
-
-        <View style={styles.dotContainer}>
-          {Array.from({ length: ob.totalSteps }).map((_, index) => (
-            <View
-              key={index}
-              style={[
-                styles.dot,
-                ob.currentStep === index && styles.activeDot,
-              ]}
-            />
-          ))}
+          <View style={styles.dotContainer}>
+            {Array.from({ length: ob.totalSteps }).map((_, index) => (
+              <View
+                key={index}
+                style={[
+                  styles.dot,
+                  ob.currentStep === index && styles.activeDot,
+                ]}
+              />
+            ))}
+          </View>
         </View>
-      </View>
-    </Card>
-  </SafeAreaView>
-);
-
+      </Card>
+    </SafeAreaView>
+  );
 }
 
 const styles = StyleSheet.create({
@@ -529,5 +580,17 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: "500",
     color: "#4F7CFF",
+  },
+
+  addedItemRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+
+  deleteIcon: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#9CA3AF", // neutral grå
   },
 });
