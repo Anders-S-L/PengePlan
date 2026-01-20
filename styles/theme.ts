@@ -12,7 +12,8 @@ export const theme = {
     surface: "#DBEAFE",      // Cards, modals, inputs
     labelBg: "#F7F7F7",      // Label-baggrund (fx input labels)
     divider: "#E5E7EB",      // Hjulet IKKE ÆNDRE
-    Skillelinjer: "#565555", // Skillelinjer
+    Skillelinjer: "#1E40AF", // Skillelinjer
+    tekstIboks: "#1E40AF", // Tekst i blå bokse
 
     // --- Text colors ---
     textPrimary: "#000000",  // Primær tekst (overskrifter, beløb)

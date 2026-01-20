@@ -18,7 +18,7 @@ function formatKr(value) {
   return `${rounded.toLocaleString("da-DK")} kr.`;
 }
 
-export function HjulUdseende({ budget }) {
+export function HjulUdseende({ budget, isOverBudget = false }) {
   // Her hentes udregninger osv fra vores local storage i ViewModel så hjulet 
   // tegnes korrekt i forhold til budgettet, alt efter hvad brugeren har indtastet i deres budget
   // const { isLoading, metrics } = useHjulUdregninger();
@@ -50,8 +50,9 @@ export function HjulUdseende({ budget }) {
 
   // Det farven på "tilbage" teksten i bunden af hjulet som hentes fra vores tema 
   // som er lavet i styles mappen
-  const remainingColor =
-    remaining >= 0 ? theme.colors.success : theme.colors.danger;
+  const remainingColor = isOverBudget
+    ? theme.colors.danger
+    : theme.colors.textPrimary;
 
   return (
     <View style={styles.container}>
@@ -103,7 +104,7 @@ export function HjulUdseende({ budget }) {
         {/* Teksten som står i midten af hjulet */}
         <View style={styles.centerLabel}>
           <Text style={styles.centerLabelTitle}>Rådighed</Text>
-          <Text style={[styles.centerLabelValue,]}>
+          <Text style={[styles.centerLabelValue, { color: remainingColor }]}>
             {formatKr(remaining)}
           </Text>
           <Text style={styles.centerLabelSub}>af {formatKr(incomeTotal)}</Text>

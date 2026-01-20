@@ -12,6 +12,7 @@ import { Button } from "../../components/UI/Button";
 import { HjulUdseende } from "./hjulUdseende";
 import { ResetBudgetModal } from "../resetBudgetModal";
 import { Card } from "../../components/UI/Card";
+import { theme } from "../../styles/theme";
 
 
 export function BudgetOverview({ onResetAll }) {
@@ -28,7 +29,7 @@ export function BudgetOverview({ onResetAll }) {
     // UI-liste til månedsoverblikket
     const items = [
         { name: "Månedlig indkomst", value: vm.totals.income },
-        { name: "Faste omkostninger", value: -vm.fixedExpensesTotal },
+        { name: "Faste udgifter", value: -vm.fixedExpensesTotal },
         { name: "Variable udgifter", value: -vm.variableExpensesTotal },
         { name: "Luksus udgifter", value: -vm.luxuryExpensesTotal },
         { name: "Total brugt", value: -vm.totals.expenses },
@@ -382,17 +383,17 @@ const styles = StyleSheet.create({
     },
     // Farver for positiv og negativ balance
     amountPositive: {
-        color: "#39D52E",
+        color: theme.colors.textPrimary,
     },
     amountNegative: {
-        color: "#FE0303",
+        color: theme.colors.danger,
     },
     // Farver for positiv og negativ balance
     amountPositive: {
-        color: "#39D52E",
+        color: theme.colors.textPrimary,
     },
     amountNegative: {
-        color: "#FE0303",
+        color: theme.colors.danger,
     },
     calendarIcon: {
         fontSize: 25,
@@ -439,12 +440,12 @@ const styles = StyleSheet.create({
     sectionTitle: {
         fontSize: 14,
         fontWeight: "600",
-        marginBottom: 0,
+        marginBottom: 2,
     },
     listCard: {
-        borderRadius: 12,
-        borderWidth: 0,
-        padding: 12,
+        borderRadius: 16,
+        borderWidth: 1,
+        borderColor:"#1E40AF",
     },
     categoryListCard: {
         marginTop: 2,
