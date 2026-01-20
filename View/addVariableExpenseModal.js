@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Modal, Pressable, StyleSheet, View } from "react-native";
 import { AppText } from "../components/UI/AppText";
 import { Button } from "../components/UI/Button";
@@ -16,12 +16,39 @@ const categories = [
     "Andet",
 ];
 
-export function AddVariableExpenseModal({ visible, onClose, onSubmit }) {
+export function AddVariableExpenseModal({
+    visible,
+    onClose,
+    onSubmit,
+    initialExpense = null,
+    title = "Tilføj ny udgift",
+    submitLabel = "Tilføj",
+}) {
     const [name, setName] = useState("");
     const [amount, setAmount] = useState("");
     const [isLuxury, setIsLuxury] = useState(false);
     const [category, setCategory] = useState(categories[0]);
     const [isCategoryOpen, setIsCategoryOpen] = useState(false);
+
+    // Fill fields when editing, reset when adding.
+    useEffect(() => {
+        if (!visible) return;
+        if (!initialExpense) {
+            setName("");
+            setAmount("");
+            setIsLuxury(false);
+            setCategory(categories[0]);
+            return;
+        }
+        setName(initialExpense.name ?? "");
+        setAmount(
+            initialExpense.amount !== undefined && initialExpense.amount !== null
+                ? String(initialExpense.amount)
+                : ""
+        );
+        setIsLuxury(Boolean(initialExpense.isLuxury));
+        setCategory(initialExpense.category || categories[0]);
+    }, [visible, initialExpense]);
 
     async function handleAdd() {
         if (!name || !amount) return;
@@ -31,7 +58,8 @@ export function AddVariableExpenseModal({ visible, onClose, onSubmit }) {
             amount: parseFloat(amount),
             category,
             isLuxury,
-            createdAt: Date.now(),
+            // Keep createdAt when editing.
+            createdAt: initialExpense?.createdAt ?? Date.now(),
         });
 
         setName("");

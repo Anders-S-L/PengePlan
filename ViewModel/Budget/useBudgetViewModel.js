@@ -16,6 +16,8 @@ import {
   addFixedExpense,
   addVariableIncome,
   addVariableExpense,
+  updateVariableExpense,
+  removeVariableExpense,
 } from "./addEntries";
 
 export function useBudgetViewModel() {
@@ -231,6 +233,8 @@ export function useBudgetViewModel() {
     addFixedExpense: handleAddFixedExpense,
     addVariableIncome: handleAddVariableIncome,
     addVariableExpense: handleAddVariableExpense,
+    updateVariableExpense: handleUpdateVariableExpense,
+    removeVariableExpense: handleRemoveVariableExpense,
     resetBudget: handleResetBudget,
     resetAllBudget: handleResetAllBudget,
     resetFixedBudget: handleResetFixedBudget,
