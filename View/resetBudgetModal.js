@@ -120,7 +120,7 @@ export function ResetBudgetModal({
     }
 
     return (
-        <Modal visible={visible} transparent animationType="fade">
+        <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
             <View style={styles.overlay}>
                 <Card style={styles.sheet}>
                     {/* Header */}
@@ -134,13 +134,22 @@ export function ResetBudgetModal({
                             </AppText>
                         </View>
 
-                        <Pressable onPress={onClose} style={styles.closeBtn} accessibilityLabel="Luk">
-                            <AppText style={styles.closeIcon}>×</AppText>
+                        <Pressable
+                            onPress={onClose}
+                            hitSlop={12}
+                            style={({ pressed }) => [styles.closeBtn, pressed && styles.closeBtnPressed]}
+                            accessibilityLabel="Luk"
+                        >
+                            <AppText style={styles.closeIcon}>✕</AppText>
                         </Pressable>
                     </View>
 
                     {/* Content */}
-                    <ScrollView style={styles.content} contentContainerStyle={styles.contentContainer} showsVerticalScrollIndicator={false}>
+                    <ScrollView
+                        style={styles.content}
+                        contentContainerStyle={styles.contentContainer}
+                        showsVerticalScrollIndicator={false}
+                    >
                         {/* Faste indtægter */}
                         <View style={styles.section}>
                             <AppText style={styles.sectionTitle}>Faste indtægter</AppText>
@@ -151,8 +160,6 @@ export function ResetBudgetModal({
                                 return (
                                     <View key={`income-${index}`} style={styles.rowWrap}>
                                         <View style={styles.rowCard}>
-
-
                                             <View style={styles.rowText}>
                                                 <AppText style={styles.rowTitle}>
                                                     {entry.name?.trim() || "Ny indtægt"}
@@ -166,22 +173,25 @@ export function ResetBudgetModal({
                                                 <View style={styles.iconRow}>
                                                     <Pressable
                                                         onPress={() => toggleIncomeEdit(index)}
-                                                        style={styles.editBtn}
+                                                        style={({ pressed }) => [styles.iconBtn, pressed && styles.iconBtnPressed]}
                                                         accessibilityLabel="Rediger indtægt"
                                                     >
-                                                        <AppText style={styles.editIcon}>✏️</AppText>
+                                                        <AppText style={styles.iconBtnText}>✎</AppText>
                                                     </Pressable>
 
                                                     <Pressable
                                                         onPress={() => deleteFixedIncome(index)}
-                                                        style={styles.deleteBtn}
+                                                        style={({ pressed }) => [
+                                                            styles.iconBtn,
+                                                            styles.iconBtnDanger,
+                                                            pressed && styles.iconBtnPressed,
+                                                        ]}
                                                         accessibilityLabel="Slet indtægt"
                                                     >
-                                                        <AppText style={styles.deleteIcon}>🗑</AppText>
+                                                        <AppText style={[styles.iconBtnText, styles.iconBtnDangerText]}>🗑</AppText>
                                                     </Pressable>
                                                 </View>
                                             </View>
-
                                         </View>
 
                                         {isEditing && (
@@ -203,9 +213,14 @@ export function ResetBudgetModal({
                                 );
                             })}
 
-                            <Pressable onPress={addFixedIncome} style={styles.addPill} accessibilityLabel="Tilføj indtægt">
+                            <Pressable
+                                onPress={addFixedIncome}
+                                style={({ pressed }) => [styles.addPill, pressed && styles.addPillPressed]}
+                                accessibilityLabel="Tilføj indtægt"
+                            >
                                 <AppText style={styles.addPillText}>＋ Tilføj indtægt</AppText>
                             </Pressable>
+                            <View style={styles.divider} />
                         </View>
 
                         {/* Faste omkostninger */}
@@ -218,7 +233,6 @@ export function ResetBudgetModal({
                                 return (
                                     <View key={`expense-${index}`} style={styles.rowWrap}>
                                         <View style={styles.rowCard}>
-
                                             <View style={styles.rowText}>
                                                 <AppText style={styles.rowTitle}>
                                                     {entry.name?.trim() || "Ny omkostning"}
@@ -232,22 +246,25 @@ export function ResetBudgetModal({
                                                 <View style={styles.iconRow}>
                                                     <Pressable
                                                         onPress={() => toggleExpenseEdit(index)}
-                                                        style={styles.editBtn}
+                                                        style={({ pressed }) => [styles.iconBtn, pressed && styles.iconBtnPressed]}
                                                         accessibilityLabel="Rediger omkostning"
                                                     >
-                                                        <AppText style={styles.editIcon}>✏️</AppText>
+                                                        <AppText style={styles.iconBtnText}>✎</AppText>
                                                     </Pressable>
 
                                                     <Pressable
                                                         onPress={() => deleteFixedExpense(index)}
-                                                        style={styles.deleteBtn}
+                                                        style={({ pressed }) => [
+                                                            styles.iconBtn,
+                                                            styles.iconBtnDanger,
+                                                            pressed && styles.iconBtnPressed,
+                                                        ]}
                                                         accessibilityLabel="Slet omkostning"
                                                     >
-                                                        <AppText style={styles.deleteIcon}>🗑</AppText>
+                                                        <AppText style={[styles.iconBtnText, styles.iconBtnDangerText]}>🗑</AppText>
                                                     </Pressable>
                                                 </View>
                                             </View>
-
                                         </View>
 
                                         {isEditing && (
@@ -269,28 +286,52 @@ export function ResetBudgetModal({
                                 );
                             })}
 
-                            <Pressable onPress={addFixedExpense} style={styles.addPill} accessibilityLabel="Tilføj udgift">
+                            <Pressable
+                                onPress={addFixedExpense}
+                                style={({ pressed }) => [styles.addPill, pressed && styles.addPillPressed]}
+                                accessibilityLabel="Tilføj udgift"
+                            >
                                 <AppText style={styles.addPillText}>＋ Tilføj udgift</AppText>
                             </Pressable>
+                            <View style={styles.divider} />
                         </View>
 
                         {/* Reset */}
-                        <Pressable onPress={onResetAll} style={styles.resetPill} accessibilityLabel="Nulstil budget">
+                        <Pressable
+                            onPress={onResetAll}
+                            style={({ pressed }) => [styles.resetPill, pressed && styles.resetPillPressed]}
+                            accessibilityLabel="Nulstil budget"
+                        >
                             <AppText style={styles.resetText}>Nulstil budget</AppText>
                         </Pressable>
 
-                        {/* Divider */}
                         <View style={styles.divider} />
                     </ScrollView>
 
                     {/* Bottom actions */}
                     <View style={styles.bottomActions}>
-                        <Pressable onPress={onClose} style={styles.cancelPill} accessibilityLabel="Annuller">
-                            <AppText style={styles.cancelText}>Annuller</AppText>
+                        <Pressable
+                            onPress={onClose}
+                            style={({ pressed }) => [
+                                styles.btn,
+                                styles.btnSecondary,
+                                pressed && styles.btnSecondaryPressed,
+                            ]}
+                            accessibilityLabel="Annuller"
+                        >
+                            <AppText style={styles.btnSecondaryText}>Annuller</AppText>
                         </Pressable>
 
-                        <Pressable onPress={handleSaveFixed} style={styles.savePill} accessibilityLabel="Gem ændringer">
-                            <AppText style={styles.saveText}>Gem ændringer</AppText>
+                        <Pressable
+                            onPress={handleSaveFixed}
+                            style={({ pressed }) => [
+                                styles.btn,
+                                styles.btnPrimary,
+                                pressed && styles.btnPrimaryPressed,
+                            ]}
+                            accessibilityLabel="Gem ændringer"
+                        >
+                            <AppText style={styles.btnPrimaryText}>Gem ændringer</AppText>
                         </Pressable>
                     </View>
                 </Card>
@@ -304,40 +345,54 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: "center",
         padding: theme.spacing.lg,
-        backgroundColor: "rgba(0,0,0,0.3)",
+        backgroundColor: "rgba(2, 6, 23, 0.55)",
     },
 
-    // Big rounded modal like the mock
     sheet: {
-        backgroundColor: "#EAF2FF",
-        borderRadius: 24,
-        padding: 18,
-        gap: 14,
+        backgroundColor: theme.colors.background,
+        borderRadius: theme.radius.lg,
+        padding: theme.spacing.xl,
+        gap: theme.spacing.md,
+        shadowColor: "#0F172A",
+        shadowOpacity: 0.14,
+        shadowRadius: 24,
+        shadowOffset: { width: 0, height: 12 },
+        elevation: 10,
     },
 
     header: {
         flexDirection: "row",
         alignItems: "flex-start",
-        gap: 12,
+        gap: theme.spacing.md,
     },
+
     title: {
-        fontWeight: "800",
         color: theme.colors.textPrimary,
     },
+
     subtitle: {
-        marginTop: 6,
+        marginTop: theme.spacing.xs,
         color: theme.colors.textSecondary,
     },
+
     closeBtn: {
-        width: 34,
-        height: 34,
-        borderRadius: 17,
+        width: 36,
+        height: 36,
+        borderRadius: 18,
         alignItems: "center",
         justifyContent: "center",
+        backgroundColor: theme.colors.labelBg,
+        borderWidth: 1,
+        borderColor: theme.colors.border,
+    },
+    closeBtnPressed: {
+        opacity: 0.92,
+        transform: [{ scale: 0.98 }],
     },
     closeIcon: {
-        fontSize: 26,
-        lineHeight: 26,
+        fontSize: 16,
+        lineHeight: 18,
+        fontWeight: "800",
         color: theme.colors.textSecondary,
     },
 
@@ -345,168 +400,198 @@ const styles = StyleSheet.create({
         maxHeight: 520,
     },
     contentContainer: {
-        paddingBottom: 10,
-        gap: 18,
+        paddingBottom: theme.spacing.sm,
+        gap: theme.spacing.xl,
     },
 
     section: {
-        gap: 12,
+        gap: theme.spacing.sm,
     },
     sectionTitle: {
-        fontSize: 22,
+        fontSize: 16,
+        lineHeight: 22,
         fontWeight: "800",
         color: theme.colors.textPrimary,
     },
 
     rowWrap: {
-        gap: 10,
+        gap: theme.spacing.sm,
     },
+
     rowCard: {
-        backgroundColor: "#FFFFFF",
-        borderRadius: 16,
+        backgroundColor: theme.colors.surface,
+        borderRadius: theme.radius.md,
         borderWidth: 1,
-        borderColor: "#E4EAF5",
-        paddingVertical: 14,
-        paddingHorizontal: 14,
+        borderColor: theme.colors.border,
+        paddingVertical: theme.spacing.md,
+        paddingHorizontal: theme.spacing.md,
         flexDirection: "row",
         alignItems: "center",
-        gap: 12,
+        gap: theme.spacing.md,
     },
-    leftIcon: {
-        width: 44,
-        height: 44,
-        borderRadius: 22,
-        backgroundColor: "#F2F4F8",
-        alignItems: "center",
-        justifyContent: "center",
-    },
-    leftIconText: {
-        fontSize: 24,
-        fontWeight: "800",
-        color: theme.colors.textPrimary,
-    },
+
     rowText: {
         flex: 1,
-        gap: 4,
+        gap: theme.spacing.xxs,
     },
+
     rowTitle: {
-        fontSize: 18,
+        fontSize: 13,
+        lineHeight: 20,
         fontWeight: "800",
         color: theme.colors.textPrimary,
     },
+
     rowMeta: {
         color: theme.colors.textSecondary,
     },
+
     rightArea: {
         alignItems: "flex-end",
-        gap: 10,
+        gap: theme.spacing.sm,
     },
+
     amount: {
-        fontSize: 18,
+        fontSize: 15,
+        lineHeight: 20,
         fontWeight: "800",
         color: theme.colors.textPrimary,
     },
-    editBtn: {
-        width: 45,
-        height: 45,
-        borderColor: theme.colors.primary,
+
+    iconRow: {
+        flexDirection: "row",
+        gap: theme.spacing.xs,
+    },
+
+    iconBtn: {
+        width: 38,
+        height: 38,
+        borderRadius: 19,
         alignItems: "center",
         justifyContent: "center",
-        backgroundColor: "#FFFFFF",
+        backgroundColor: theme.colors.primaryDisabled,
+        borderWidth: 1,
+        borderColor: theme.colors.primary,
     },
-    editIcon: {
+    iconBtnPressed: {
+        backgroundColor: theme.colors.labelBg,
+        transform: [{ scale: 0.98 }],
+    },
+    iconBtnText: {
         color: theme.colors.primary,
-        fontSize: 18,
+        fontWeight: "900",
+        fontSize: 14,
+        lineHeight: 16,
+    },
+    iconBtnDanger: {
+        borderColor: theme.colors.primary,
+    },
+    iconBtnDangerText: {
+        color: theme.colors.danger,
     },
 
     editor: {
-        backgroundColor: "#FFFFFF",
-        borderRadius: 16,
+        backgroundColor: theme.colors.surface,
+        borderRadius: theme.radius.md,
         borderWidth: 1,
-        borderColor: "#E4EAF5",
-        padding: 12,
-        gap: 10,
+        borderColor: theme.colors.border,
+        padding: theme.spacing.md,
+        gap: theme.spacing.sm,
     },
 
     addPill: {
         alignSelf: "center",
-        paddingVertical: 14,
-        paddingHorizontal: 22,
-        borderRadius: 999,
+        paddingVertical: 12,
+        paddingHorizontal: 100,
+        borderRadius: theme.radius.pill,
         borderWidth: 1,
-        borderColor: "#D6DEEE",
-        backgroundColor: "#FFFFFF",
-        marginTop: 6,
+        borderColor: theme.colors.border,
+        backgroundColor: theme.colors.primary,
+        marginTop: theme.spacing.xs,
+    },
+    addPillPressed: {
+        backgroundColor: theme.colors.primaryPressed,
+        transform: [{ scale: 0.99 }],
     },
     addPillText: {
         fontWeight: "800",
-        color: theme.colors.textPrimary,
+        color: theme.colors.textOnPrimary,
     },
 
     resetPill: {
-        marginTop: 6,
-        borderRadius: 999,
-        paddingVertical: 18,
+        marginTop: theme.spacing.xs,
+        borderRadius: theme.radius.pill,
+        paddingVertical: 14,
         alignItems: "center",
-        backgroundColor: "#E23B3B",
+        backgroundColor: theme.colors.background,
+        borderWidth: 1,
+        borderColor: theme.colors.danger,
+    },
+    resetPillPressed: {
+        backgroundColor: "#FDEDED",
+        opacity: 0.92,
+        transform: [{ scale: 0.99 }],
+
     },
     resetText: {
-        color: "#FFFFFF",
+        color: theme.colors.danger,
         fontWeight: "900",
-        fontSize: 18,
+        fontSize: 15,
+        lineHeight: 20,
     },
 
     divider: {
         height: 1,
-        backgroundColor: "#D7DFEF",
-        marginTop: 6,
+        backgroundColor: theme.colors.divider,
+        marginTop: theme.spacing.xs,
     },
 
     bottomActions: {
         flexDirection: "row",
-        gap: 12,
-        justifyContent: "space-between",
-    },
-    cancelPill: {
-        flex: 1,
-        paddingVertical: 14,
-        borderRadius: 999,
-        borderWidth: 1,
-        borderColor: "#D6DEEE",
-        backgroundColor: "#FFFFFF",
-        alignItems: "center",
-    },
-    cancelText: {
-        fontWeight: "800",
-        color: theme.colors.textPrimary,
-    },
-    savePill: {
-        flex: 1.2,
-        paddingVertical: 14,
-        borderRadius: 999,
-        backgroundColor: theme.colors.primary,
-        alignItems: "center",
-    },
-    saveText: {
-        fontWeight: "900",
-        color: theme.colors.textOnPrimary,
-    },
-    iconRow: {
-        flexDirection: "row",
-        gap: 8,
+        gap: theme.spacing.sm,
+        marginTop: theme.spacing.md,
     },
 
-    deleteBtn: {
-        width: 38,
-        height: 38,
+    btn: {
+        flex: 1,
+        minHeight: 46,
+        paddingVertical: 12,
+        paddingHorizontal: 16,
+        borderRadius: theme.radius.pill,
         alignItems: "center",
         justifyContent: "center",
-        backgroundColor: "#FFFFFF",
     },
 
-    deleteIcon: {
-        fontSize: 16,
-        color: "#DC2626",
+    btnPrimary: {
+        backgroundColor: theme.colors.primary,
+        shadowColor: "#0F172A",
+        shadowOpacity: 0.12,
+        shadowRadius: 10,
+        shadowOffset: { width: 0, height: 6 },
+        elevation: 3,
+    },
+    btnPrimaryPressed: {
+        backgroundColor: theme.colors.primaryPressed,
+        transform: [{ scale: 0.99 }],
+        opacity: 0.98,
+    },
+    btnPrimaryText: {
+        color: theme.colors.textOnPrimary,
+        fontWeight: "900",
     },
 
+    btnSecondary: {
+        backgroundColor: theme.colors.background,
+        borderWidth: 1,
+        borderColor: theme.colors.border,
+    },
+    btnSecondaryPressed: {
+        backgroundColor: theme.colors.labelBg,
+        transform: [{ scale: 0.99 }],
+        opacity: 0.98,
+    },
+    btnSecondaryText: {
+        color: theme.colors.textPrimary,
+        fontWeight: "900",
+    },
 });
