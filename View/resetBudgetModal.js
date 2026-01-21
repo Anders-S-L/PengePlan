@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { Modal, View, ScrollView, Pressable, StyleSheet } from "react-native";
+import { useEffect, useState, } from "react";
+import { Modal, View, ScrollView, Pressable, StyleSheet, Alert } from "react-native";
 import { AppText } from "../components/UI/AppText";
 import { Card } from "../components/UI/Card";
 import { Input } from "../components/UI/Input";
@@ -118,6 +118,49 @@ export function ResetBudgetModal({
     function toggleExpenseEdit(index) {
         setEditingExpenseIndex((prev) => (prev === index ? null : index));
     }
+    const confirmResetBudget = () => {
+        Alert.alert(
+            "Nulstil budget",
+            "Er du sikker på at du vil nulstille budgettet? Dette kan ikke fortrydes.",
+            [
+                { text: "Nej", style: "cancel" },
+                {
+                    text: "Ja",
+                    style: "destructive",
+                    onPress: () => onResetAll?.(),
+                },
+            ]
+        );
+    };
+    const confirmDeleteFixedIncome = (index) => {
+        Alert.alert(
+            "Slet indtægt",
+            "Er du sikker på at du vil slette denne faste indtægt?",
+            [
+                { text: "Nej", style: "cancel" },
+                {
+                    text: "Ja",
+                    style: "destructive",
+                    onPress: () => deleteFixedIncome(index),
+                },
+            ]
+        );
+    };
+
+    const confirmDeleteFixedExpense = (index) => {
+        Alert.alert(
+            "Slet omkostning",
+            "Er du sikker på at du vil slette denne faste udgift?",
+            [
+                { text: "Nej", style: "cancel" },
+                {
+                    text: "Ja",
+                    style: "destructive",
+                    onPress: () => deleteFixedExpense(index),
+                },
+            ]
+        );
+    };
 
     return (
         <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
@@ -130,7 +173,7 @@ export function ResetBudgetModal({
                                 Redigér budget
                             </AppText>
                             <AppText variant="p" style={styles.subtitle}>
-                                Administrér dine faste indtægter og omkostninger
+                                Administrér dine faste indtægter og udgifter
                             </AppText>
                         </View>
 
@@ -180,7 +223,7 @@ export function ResetBudgetModal({
                                                     </Pressable>
 
                                                     <Pressable
-                                                        onPress={() => deleteFixedIncome(index)}
+                                                        onPress={() => confirmDeleteFixedIncome(index)}
                                                         style={({ pressed }) => [
                                                             styles.iconBtn,
                                                             styles.iconBtnDanger,
@@ -218,14 +261,14 @@ export function ResetBudgetModal({
                                 style={({ pressed }) => [styles.addPill, pressed && styles.addPillPressed]}
                                 accessibilityLabel="Tilføj indtægt"
                             >
-                                <AppText style={styles.addPillText}>＋ Tilføj indtægt</AppText>
+                                <AppText style={styles.addPillText}>＋ Fast indtægt</AppText>
                             </Pressable>
                             <View style={styles.divider} />
                         </View>
 
                         {/* Faste omkostninger */}
                         <View style={styles.section}>
-                            <AppText style={styles.sectionTitle}>Faste omkostninger</AppText>
+                            <AppText style={styles.sectionTitle}>Faste udgifter</AppText>
 
                             {(fixedExpensesDraft ?? []).map((entry, index) => {
                                 const isEditing = editingExpenseIndex === index;
@@ -237,7 +280,7 @@ export function ResetBudgetModal({
                                                 <AppText style={styles.rowTitle}>
                                                     {entry.name?.trim() || "Ny omkostning"}
                                                 </AppText>
-                                                <AppText style={styles.rowMeta}>Fast omkostning</AppText>
+                                                <AppText style={styles.rowMeta}>Fast udgift</AppText>
                                             </View>
 
                                             <View style={styles.rightArea}>
@@ -253,7 +296,7 @@ export function ResetBudgetModal({
                                                     </Pressable>
 
                                                     <Pressable
-                                                        onPress={() => deleteFixedExpense(index)}
+                                                        onPress={() => confirmDeleteFixedExpense(index)}
                                                         style={({ pressed }) => [
                                                             styles.iconBtn,
                                                             styles.iconBtnDanger,
@@ -291,14 +334,14 @@ export function ResetBudgetModal({
                                 style={({ pressed }) => [styles.addPill, pressed && styles.addPillPressed]}
                                 accessibilityLabel="Tilføj udgift"
                             >
-                                <AppText style={styles.addPillText}>＋ Tilføj udgift</AppText>
+                                <AppText style={styles.addPillText}>＋ Fast udgift</AppText>
                             </Pressable>
                             <View style={styles.divider} />
                         </View>
 
                         {/* Reset */}
                         <Pressable
-                            onPress={onResetAll}
+                            onPress={confirmResetBudget}
                             style={({ pressed }) => [styles.resetPill, pressed && styles.resetPillPressed]}
                             accessibilityLabel="Nulstil budget"
                         >

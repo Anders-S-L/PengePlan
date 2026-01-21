@@ -308,7 +308,7 @@ export function BudgetOverview({ onResetAll }) {
 
             {/* Primær knap (tilføj udgift) */}
             <View style={styles.footer}>
-                <Button title="+  Ny udgift" onPress={() => setShowModal(true)} />
+                <Button title="+  Ny variabel udgift" onPress={() => setShowModal(true)} />
                 <AddVariableExpenseModal
                     visible={showModal}
                     onClose={() => setShowModal(false)}
