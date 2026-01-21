@@ -109,19 +109,19 @@ export default function OnboardingScreen({ onDone }: Probs) {
           <View style={styles.steps}>
             <Step
               number="1"
-              color="#4F7CFF"
+              color={theme.colors.primary}
               title="Faste indtægter"
               text="Indtast din løn og andre faste indtægter"
             />
             <Step
               number="2"
-              color="#9B5CFF"
+              color={theme.colors.luxury}
               title="Faste udgifter"
               text="Tilføj husleje, abonnementer og andre faste udgifter"
             />
             <Step
               number="3"
-              color="#4CD964"
+              color={theme.colors.success}
               title="Klar til at bruge!"
               text="Dit budget er sat op og klar hver måned"
             />
@@ -137,14 +137,7 @@ export default function OnboardingScreen({ onDone }: Probs) {
             Faste indtægter
           </AppText>
 
-          <AppText
-            style={{
-              textAlign: "center",
-              marginBottom: theme.spacing.sm,
-              color: theme.colors.textDisabled,
-              fontSize: 13,
-            }}
-          >
+          <AppText style={styles.caption}>
             Trin 1 af 3
           </AppText>
 
@@ -176,23 +169,25 @@ export default function OnboardingScreen({ onDone }: Probs) {
             </View>
           )}
 
-          <Card style={[styles.innerCard, { marginTop: theme.spacing.xl }]}>
-            <AppText>Type:</AppText>
+          <Card style={[styles.innerCard, styles.mtXl]}>
+            <AppText>Beskrivelse:</AppText>
             <Input
               value={incomeName}
+                style={{ borderColor: theme.colors.primary }}
               onChangeText={setIncomeName}
-              placeholder="fx Løn"
+              placeholder="f.eks. Løn"
             />
 
-            <AppText style={{ marginTop: theme.spacing.md }}>Beløb:</AppText>
+            <AppText style={styles.mtMd}>Beløb:</AppText>
             <Input
               value={incomeAmount}
+              style={{ borderColor: theme.colors.primary }}
               onChangeText={(text) => setIncomeAmount(onlyNumbers(text))}
               keyboardType="number-pad"
-              placeholder="fx 20000"
+              placeholder="f.eks. 20.000"
             />
 
-            <View style={{ marginTop: theme.spacing.lg }}>
+            <View style={styles.mtLg}>
               <Button title="Tilføj indtægt" onPress={addFixedIncome} />
             </View>
           </Card>
@@ -219,14 +214,7 @@ export default function OnboardingScreen({ onDone }: Probs) {
             Faste udgifter
           </AppText>
 
-          <AppText
-            style={{
-              textAlign: "center",
-              marginBottom: theme.spacing.sm,
-              color: theme.colors.textDisabled,
-              fontSize: 13,
-            }}
-          >
+          <AppText style={styles.caption}>
             Trin 2 af 3
           </AppText>
 
@@ -257,23 +245,25 @@ export default function OnboardingScreen({ onDone }: Probs) {
             </View>
           )}
 
-          <Card style={[styles.innerCard, { marginTop: theme.spacing.xl }]}>
-            <AppText>Type:</AppText>
+          <Card style={[styles.innerCard, styles.mtXl]}>
+            <AppText>Beskrivelse:</AppText>
             <Input
               value={expenseName}
+                style={{ borderColor: theme.colors.primary }}
               onChangeText={setExpenseName}
-              placeholder="fx Husleje"
+              placeholder="f.eks. Husleje"
             />
 
-            <AppText style={{ marginTop: theme.spacing.md }}>Beløb:</AppText>
+            <AppText style={styles.mtMd}>Beløb:</AppText>
             <Input
               value={expenseAmount}
+                style={{ borderColor: theme.colors.primary }}
               onChangeText={(text) => setExpenseAmount(onlyNumbers(text))}
               keyboardType="number-pad"
-              placeholder="fx 8000"
+              placeholder="f.eks. 8.000"
             />
 
-            <View style={{ marginTop: theme.spacing.lg }}>
+            <View style={styles.mtLg}>
               <Button title="Tilføj udgift" onPress={addFixedExpense} />
             </View>
           </Card>
@@ -300,29 +290,22 @@ export default function OnboardingScreen({ onDone }: Probs) {
           Klar til at bruge!
         </AppText>
 
-        <AppText
-          style={{
-            textAlign: "center",
-            marginBottom: theme.spacing.sm,
-            color: theme.colors.textDisabled,
-            fontSize: 13,
-          }}
-        >
-          Trin 3 af 3
-        </AppText>
+          <AppText style={styles.caption}>
+            Trin 3 af 3
+          </AppText>
 
         <AppText style={styles.subtitle}>
           Dit budget er sat op. Tryk “Kom i gang” for at se dit overblik.
         </AppText>
 
-        <Card style={[styles.innerCard, { marginTop: theme.spacing.xl }]}>
+        <Card style={[styles.innerCard, styles.mtXl]}>
           <AppText>
             Faste indtægter: {vm.totals.income.toLocaleString("da-DK")} kr.
           </AppText>
           <AppText>
             Faste udgifter: {vm.totals.expenses.toLocaleString("da-DK")} kr.
           </AppText>
-          <AppText style={{ marginTop: theme.spacing.md, fontWeight: "700" }}>
+          <AppText style={[styles.mtMd, styles.textStrong]}>
             Rådighedsbeløb: {vm.disposable.toLocaleString("da-DK")} kr.
           </AppText>
         </Card>
@@ -383,35 +366,35 @@ export default function OnboardingScreen({ onDone }: Probs) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#A855F7",
+    backgroundColor: theme.colors.background,
     paddingHorizontal: theme.spacing.lg,
     paddingTop: theme.spacing.xl,
     paddingBottom: theme.spacing.lg,
   },
   outerCard: {
     flex: 1,
-    borderRadius: 28,
+    borderRadius: theme.radius.xl,
     backgroundColor: theme.colors.background,
   },
   innerCard: {
-    marginTop: theme.spacing.lg,
     backgroundColor: theme.colors.surface,
     borderRadius: theme.radius.lg,
+    borderWidth: 1,
+    borderColor: theme.colors.primary,
   },
   iconCircle: {
     alignSelf: "center",
-    backgroundColor: "#FFFFFF",
-    width: 56,
-    height: 56,
-    borderRadius: 28,
+    backgroundColor: theme.colors.background,
+    width: theme.sizes.iconLg,
+    height: theme.sizes.iconLg,
+    borderRadius: theme.sizes.iconLg / 2,
     alignItems: "center",
     justifyContent: "center",
     marginBottom: theme.spacing.lg,
   },
-  iconText: { fontSize: 24 },
   iconImage: {
-    width: 65,
-    height: 65,
+    width: theme.sizes.logo,
+    height: theme.sizes.logo,
     resizeMode: "contain",
   },
   title: { textAlign: "center", marginBottom: theme.spacing.sm },
@@ -419,27 +402,33 @@ const styles = StyleSheet.create({
     textAlign: "center",
     color: theme.colors.textSecondary,
   },
+  caption: {
+    ...theme.typography.caption,
+    textAlign: "center",
+    marginBottom: theme.spacing.sm,
+    color: theme.colors.textDisabled,
+  },
   dotContainer: {
     flexDirection: "row",
     justifyContent: "center",
     marginTop: theme.spacing.lg,
   },
   dot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
+    width: theme.sizes.dot,
+    height: theme.sizes.dot,
+    borderRadius: theme.sizes.dot / 2,
     backgroundColor: theme.colors.divider,
-    marginHorizontal: 4,
+    marginHorizontal: theme.spacing.xs,
   },
   activeDot: {
-    width: 12,
-    backgroundColor: "#4F7CFF",
+    width: theme.sizes.dotActiveWidth,
+    backgroundColor: theme.colors.primary,
   },
   stepsContainer: {
-    backgroundColor: "rgba(79, 124, 255, 0.08)", // 👈 utydelig blå
-    borderRadius: 16,
-    padding: 16,
-    marginTop: 4,
+    backgroundColor: theme.colors.stepBg,
+    borderRadius: theme.radius.lg,
+    padding: theme.spacing.lg,
+    marginTop: theme.spacing.xs,
     flexDirection: "row",
     alignItems: "center",
   },
@@ -447,7 +436,7 @@ const styles = StyleSheet.create({
     flexDirection: "column",
   },
   steps: {
-    gap: 16,
+    gap: theme.spacing.lg,
   },
   step: {
     flexDirection: "row",
@@ -455,102 +444,89 @@ const styles = StyleSheet.create({
     alignItems: "flex-start",
   },
   stepCircle: {
-    width: 26,
-    height: 26,
-    borderRadius: 13,
+    width: theme.sizes.stepCircle,
+    height: theme.sizes.stepCircle,
+    borderRadius: theme.sizes.stepCircle / 2,
     alignItems: "center",
     justifyContent: "center",
-    marginRight: 8,
+    marginRight: theme.spacing.sm,
   },
   stepNumber: {
-    color: "white",
-    fontSize: 13,
+    color: theme.colors.textOnPrimary,
+    fontSize: theme.typography.caption.fontSize,
     fontWeight: "700",
   },
   stepTitle: {
-    fontWeight: "600",
-    fontSize: 15,
-    color: "#111827",
+    ...theme.typography.label,
+    color: theme.colors.textPrimary,
   },
   stepText: {
-    fontSize: 13,
-    color: "#6B7280",
-    marginTop: 2,
+    ...theme.typography.caption,
+    color: theme.colors.textSecondary,
+    marginTop: theme.spacing.xxs,
   },
   addedIncomeBox: {
-    backgroundColor: "#ECFDF3",
-    borderRadius: 14,
-    padding: 14,
+    backgroundColor: theme.colors.successBg,
+    borderRadius: theme.radius.md,
+    padding: theme.spacing.md,
     marginTop: theme.spacing.md,
     borderWidth: 1,
-    borderColor: "#BBF7D0",
-  },
-
-  addedIncomeRow: {
-    flexDirection: "column",
+    borderColor: theme.colors.successBorder,
   },
 
   addedIncomeName: {
-    fontWeight: "600",
-    fontSize: 15,
-    color: "#065F46",
+    ...theme.typography.label,
+    color: theme.colors.success,
   },
 
   addedIncomeAmount: {
-    marginTop: 4,
-    fontSize: 14,
+    marginTop: theme.spacing.xs,
+    fontSize: theme.typography.p.fontSize,
     fontWeight: "600",
-    color: "#16A34A",
+    color: theme.colors.success,
   },
 
   totalIncomeBox: {
     marginTop: theme.spacing.lg,
-    backgroundColor: "#EFF6FF",
-    borderRadius: 14,
-    padding: 16,
+    backgroundColor: theme.colors.infoBg,
+    borderRadius: theme.radius.md,
+    padding: theme.spacing.md,
     borderWidth: 1,
-    borderColor: "#BFDBFE",
+    borderColor: theme.colors.infoBorder,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
   },
 
   totalIncomeLabel: {
-    fontSize: 15,
-    fontWeight: "600",
-    color: "#1E40AF",
+    ...theme.typography.label,
+    color: theme.colors.primary,
   },
 
   totalIncomeValue: {
-    fontSize: 17,
-    fontWeight: "700",
-    color: "#2563EB",
+    ...theme.typography.h4,
+    color: theme.colors.primary,
   },
 
   addedExpenseBox: {
-    backgroundColor: "#FEF2F2",
-    borderRadius: 14,
-    padding: 14,
+    backgroundColor: theme.colors.dangerBg,
+    borderRadius: theme.radius.md,
+    padding: theme.spacing.md,
     marginTop: theme.spacing.md,
     borderWidth: 1,
-    borderColor: "#FECACA",
-  },
-
-  addedExpenseRow: {
-    flexDirection: "column",
+    borderColor: theme.colors.dangerBorder,
   },
 
   addedExpenseName: {
-    fontWeight: "600",
-    fontSize: 15,
-    color: "#7F1D1D",
+    ...theme.typography.label,
+    color: theme.colors.danger,
   },
 
   addedExpenseAmount: {
-    marginTop: 4,
-    fontSize: 14,
+    marginTop: theme.spacing.xs,
+    fontSize: theme.typography.p.fontSize,
     fontWeight: "600",
-    color: "#DC2626",
+    color: theme.colors.danger,
   },
 
   scrollContent: {
@@ -570,16 +546,16 @@ const styles = StyleSheet.create({
   },
 
   backIcon: {
-    fontSize: 28,
-    lineHeight: 28,
-    marginRight: 4,
-    color: "#4F7CFF",
+    fontSize: theme.sizes.backIcon,
+    lineHeight: theme.sizes.backIcon,
+    marginRight: theme.spacing.xs,
+    color: theme.colors.primary,
   },
 
   backText: {
-    fontSize: 15,
+    fontSize: theme.typography.label.fontSize,
     fontWeight: "500",
-    color: "#4F7CFF",
+    color: theme.colors.primary,
   },
 
   addedItemRow: {
@@ -589,8 +565,20 @@ const styles = StyleSheet.create({
   },
 
   deleteIcon: {
-    fontSize: 18,
+    fontSize: theme.sizes.iconMd,
     fontWeight: "600",
-    color: "#9CA3AF", // neutral grå
+    color: theme.colors.textDisabled,
+  },
+  textStrong: {
+    fontWeight: "700",
+  },
+  mtMd: {
+    marginTop: theme.spacing.md,
+  },
+  mtLg: {
+    marginTop: theme.spacing.lg,
+  },
+  mtXl: {
+    marginTop: theme.spacing.xl,
   },
 });

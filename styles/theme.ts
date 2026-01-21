@@ -35,6 +35,18 @@ export const theme = {
     border: "#D1D5DB",       // Standard border (inputs, cards)
     borderFocus: "#3B82F6",  // Border når input er i fokus
     borderError: "#FE0303",  // Border ved fejl
+    boxBorder: "#1E40AF", // Border til blå bokse
+
+    // --- Semantiske flader ---
+    infoBg: "#EFF6FF",
+    infoBorder: "#BFDBFE",
+    successBg: "#ECFDF3",
+    successBorder: "#BBF7D0",
+    dangerBg: "#FEF2F2",
+    dangerBorder: "#FECACA",
+    stepBg: "rgba(79, 124, 255, 0.08)",
+    stepBG: "#E0E7FF",
+
   },
 
   // ----------------------------------
@@ -60,7 +72,21 @@ export const theme = {
     sm: 8,      // Små elementer
     md: 12,     // Inputs, cards
     lg: 16,     // Modals
+    xl: 28,     // Store cards
     pill: 999,  // Runde knapper (FAB, primary buttons)
+  },
+
+  // ----------------------------------
+  // SIZES
+  // ----------------------------------
+  sizes: {
+    iconMd: 18,
+    iconLg: 56,
+    logo: 65,
+    stepCircle: 26,
+    dot: 6,
+    dotActiveWidth: 12,
+    backIcon: 28,
   },
 
   // ----------------------------------
@@ -91,6 +117,16 @@ export const theme = {
       fontSize: 14,
       lineHeight: 24,
       fontWeight: "400" as const, // Brødtekst
+    },
+    caption: {
+      fontSize: 13,
+      lineHeight: 18,
+      fontWeight: "400" as const, // Små hjælpetekster
+    },
+    label: {
+      fontSize: 15,
+      lineHeight: 20,
+      fontWeight: "600" as const, // Små labels
     },
   },
 } as const;

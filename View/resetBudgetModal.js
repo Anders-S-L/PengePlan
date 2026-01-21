@@ -231,7 +231,7 @@ export function ResetBudgetModal({
                                                         ]}
                                                         accessibilityLabel="Slet indtægt"
                                                     >
-                                                        <AppText style={[styles.iconBtnText, styles.iconBtnDangerText]}>🗑</AppText>
+                                                        <AppText style={[styles.iconBtnText, styles.iconBtnDangerText]}>✕</AppText>
                                                     </Pressable>
                                                 </View>
                                             </View>
@@ -240,12 +240,16 @@ export function ResetBudgetModal({
                                         {isEditing && (
                                             <View style={styles.editor}>
                                                 <Input
-                                                    label="Navn"
+                                                    label="Beskrivelse:"
+                                                    style={{ borderColor: theme.colors.primary }}
+                                                    placeholder="f.eks. Løn"
                                                     value={entry.name ?? ""}
                                                     onChangeText={(value) => updateFixedIncome(index, "name", value)}
                                                 />
                                                 <Input
-                                                    label="Beløb"
+                                                    label="Beløb:"
+                                                    style={{ borderColor: theme.colors.primary }}
+                                                    placeholder="f.eks. 15.000"
                                                     value={entry.amount ?? ""}
                                                     onChangeText={(value) => updateFixedIncome(index, "amount", value)}
                                                     keyboardType="numeric"
@@ -304,7 +308,7 @@ export function ResetBudgetModal({
                                                         ]}
                                                         accessibilityLabel="Slet omkostning"
                                                     >
-                                                        <AppText style={[styles.iconBtnText, styles.iconBtnDangerText]}>🗑</AppText>
+                                                        <AppText style={[styles.iconBtnText, styles.iconBtnDangerText]}>✕</AppText>
                                                     </Pressable>
                                                 </View>
                                             </View>
@@ -313,12 +317,16 @@ export function ResetBudgetModal({
                                         {isEditing && (
                                             <View style={styles.editor}>
                                                 <Input
-                                                    label="Navn"
+                                                    label="Beskrivelse:"
+                                                    style={{ borderColor: theme.colors.primary }}
+                                                    placeholder="f.eks. Husleje "
                                                     value={entry.name ?? ""}
                                                     onChangeText={(value) => updateFixedExpense(index, "name", value)}
                                                 />
                                                 <Input
                                                     label="Beløb"
+                                                    style={{ borderColor: theme.colors.primary }}
+                                                    placeholder="f.eks. 8.000"
                                                     value={entry.amount ?? ""}
                                                     onChangeText={(value) => updateFixedExpense(index, "amount", value)}
                                                     keyboardType="numeric"
@@ -424,7 +432,7 @@ const styles = StyleSheet.create({
         borderRadius: 18,
         alignItems: "center",
         justifyContent: "center",
-        backgroundColor: theme.colors.labelBg,
+        backgroundColor: theme.colors.background,
         borderWidth: 1,
         borderColor: theme.colors.border,
     },
@@ -436,7 +444,7 @@ const styles = StyleSheet.create({
         fontSize: 16,
         lineHeight: 18,
         fontWeight: "800",
-        color: theme.colors.textSecondary,
+        color: theme.colors.textPrimary,
     },
 
     content: {
@@ -465,7 +473,7 @@ const styles = StyleSheet.create({
         backgroundColor: theme.colors.surface,
         borderRadius: theme.radius.md,
         borderWidth: 1,
-        borderColor: theme.colors.border,
+        borderColor: theme.colors.primary,
         paddingVertical: theme.spacing.md,
         paddingHorizontal: theme.spacing.md,
         flexDirection: "row",
@@ -530,16 +538,17 @@ const styles = StyleSheet.create({
         borderColor: theme.colors.primary,
     },
     iconBtnDangerText: {
-        color: theme.colors.danger,
+        color: theme.colors.primary,
     },
 
     editor: {
         backgroundColor: theme.colors.surface,
         borderRadius: theme.radius.md,
         borderWidth: 1,
-        borderColor: theme.colors.border,
+        borderColor: theme.colors.primary,
         padding: theme.spacing.md,
         gap: theme.spacing.sm,
+        
     },
 
     addPill: {
@@ -547,8 +556,6 @@ const styles = StyleSheet.create({
         paddingVertical: 12,
         paddingHorizontal: 100,
         borderRadius: theme.radius.pill,
-        borderWidth: 1,
-        borderColor: theme.colors.border,
         backgroundColor: theme.colors.primary,
         marginTop: theme.spacing.xs,
     },

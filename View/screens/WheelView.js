@@ -3,7 +3,7 @@ import { View, Text, StyleSheet } from "react-native";
 import Svg, { Circle } from "react-native-svg";
 
 import { theme } from "../../styles/theme";
-import { calculateWheelMetrics } from "../../ViewModel/hjulUdregninger";
+import { calculateWheelMetrics } from "../../ViewModel/wheelCalculations";
 
 
 // Her definerer vi størrelsen på hjulet og cirklen. Eventuelt prøv at ændre lidt for at se hvordan det virker :)
@@ -18,17 +18,17 @@ function formatKr(value) {
   return `${rounded.toLocaleString("da-DK")} kr.`;
 }
 
-export function HjulUdseende({ budget, isOverBudget = false }) {
+export function WheelView({ budget, isOverBudget = false }) {
   // Her hentes udregninger osv fra vores local storage i ViewModel så hjulet 
   // tegnes korrekt i forhold til budgettet, alt efter hvad brugeren har indtastet i deres budget
-  // const { isLoading, metrics } = useHjulUdregninger();
+  // const { isLoading, metrics } = useWheelCalculations();
 
   // her vises en loading tekst mens data hentes fra storage så brugeren ved at noget sker og at hjulet er på vej :D
   // Det er bare formelt, men vigtigt for brugeroplevelsen, hvisd en er lang tid om at loade data
 
   const metrics = calculateWheelMetrics(budget);
   // Tager  de felter vi skal bruge i UIet fra metrics objektet som er lavet i ViewModel. Det er de udregnede tal baseret på brugerens budget
-  // hentet fra local storage og de procenter vi har defineret i ViewModel i filen hjulUdregninger.js.
+  // hentet fra local storage og de procenter vi har defineret i ViewModel i filen wheelCalculations.js.
   const {
     incomeTotal,
     expenseTotal,
@@ -44,7 +44,7 @@ export function HjulUdseende({ budget, isOverBudget = false }) {
   // at lave streger på cirklen ved at definere længderne af de synlige og usynlige dele af stregen. 
   // Forklaret lidt mere simpelt så hvis vi har en cirkel med omkreds på 100 og vi vil vise 25% af den,
   // så sætter vi strokeDasharray til "25 75", hvilket betyder at 25 enheder af cirklen er synlige og 75 enheder er usynlige. 
-  // Circumference er omkredsen af cirklen og normalPercent og luxuryPercent er de procenter vi har udregnet i ViewModel i filen hjulUdregninger.js baseret på brugerens budget.
+  // Circumference er omkredsen af cirklen og normalPercent og luxuryPercent er de procenter vi har udregnet i ViewModel i filen wheelCalculations.js baseret på brugerens budget.
   const normalLen = CIRCUMFERENCE * normalPercent;
   const luxuryLen = CIRCUMFERENCE * luxuryPercent;
 
@@ -69,7 +69,7 @@ export function HjulUdseende({ budget, isOverBudget = false }) {
             strokeWidth={STROKE_WIDTH}
             fill="none"
           />
-          {/* Almindelige udgifter (denr røde del) */}
+          {/* Almindelige udgifter (den røde del) */}
           {normalLen > 0 ? (
             <Circle
               cx={WHEEL_SIZE / 2}

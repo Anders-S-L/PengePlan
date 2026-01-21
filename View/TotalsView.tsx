@@ -61,7 +61,7 @@ const styles = StyleSheet.create({
     },
     totalDivider: {
         borderTopWidth: 1,
-        borderTopColor: theme.colors.Skillelinjer,
+        borderTopColor: theme.colors.primary,
     },
     label: {
         color: theme.colors.textSecondary,

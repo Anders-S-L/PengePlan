@@ -9,7 +9,7 @@ import { TotalsView } from "../TotalsView";
 import { AddVariableExpenseModal } from "../addVariableExpenseModal";
 import { Button } from "../../components/UI/Button";
 
-import { HjulUdseende } from "./hjulUdseende";
+import { WheelView } from "./WheelView";
 import { ResetBudgetModal } from "../resetBudgetModal";
 import { Card } from "../../components/UI/Card";
 import { theme } from "../../styles/theme";
@@ -21,7 +21,7 @@ export function BudgetOverview({ onResetAll }) {
     const vm = useBudgetViewModel();
     const [showModal, setShowModal] = useState(false);
     const [showResetModal, setShowResetModal] = useState(false);
-    const [activeTab, setActiveTab] = useState("overblik");
+    const [activeTab, setActiveTab] = useState("overview");
     const [showEditModal, setShowEditModal] = useState(false);
     const [editExpense, setEditExpense] = useState(null);
 
@@ -61,7 +61,7 @@ export function BudgetOverview({ onResetAll }) {
         const sign = value < 0 ? "- " : "";
         return `${sign}${amount} kr.`;
     };
-    const raad = formatSignedAmount(vm.disposable);
+    const disposableFormatted = formatSignedAmount(vm.disposable);
 
     const budgetUsage = vm.budgetUsage ?? { spentPercent: 0, overBudgetPercent: 0, isOverBudget: false };
     const { spentPercent, overBudgetPercent, isOverBudget } = budgetUsage;
@@ -92,14 +92,12 @@ export function BudgetOverview({ onResetAll }) {
         const total = entries.reduce((sum, expense) => sum + (Number(expense.amount) || 0), 0);
         return { category, total };
     });
-    // Finder de nyeste transaktioner ud fra allerede eksisterende data
-    const recentTransactions = Object.entries(vm.expensesByCategory ?? {})
-        .flatMap(([category, expenses]) =>
-            (expenses ?? []).map((expense) => ({
-                ...expense,
-                category: expense.category || category || "Andet",
-            }))
-        )
+    // Finder de nyeste transaktioner (kun variable udgifter)
+    const recentTransactions = (vm.budget?.variableExpenses ?? [])
+        .map((expense) => ({
+            ...expense,
+            category: expense.category || "Andet",
+        }))
         .sort((a, b) => {
             const dateDiff = (b.createdAt || 0) - (a.createdAt || 0);
             if (dateDiff !== 0) return dateDiff;
@@ -142,9 +140,10 @@ export function BudgetOverview({ onResetAll }) {
                             <Text
                                 style={[
                                     styles.balanceAmount,
+                                    isOverBudget ? styles.amountNegative : styles.amountPositive,
                                 ]}
                             >
-                                {raad}
+                                {disposableFormatted}
                             </Text>
                         </View>
                         <Text style={styles.calendarIcon}>📅</Text>
@@ -155,44 +154,44 @@ export function BudgetOverview({ onResetAll }) {
                 <View style={styles.tabRow}>
                     <TouchableOpacity
                         style={styles.tabItem}
-                        onPress={() => setActiveTab("overblik")}
+                        onPress={() => setActiveTab("overview")}
                         accessibilityRole="button"
                         accessibilityLabel="Vis overblik"
                     >
-                        <Text style={activeTab === "overblik" ? styles.tabActive : styles.tabInactive}>
+                        <Text style={activeTab === "overview" ? styles.tabActive : styles.tabInactive}>
                             OVERBLIK
                         </Text>
                         <View
                             style={[
                                 styles.tabUnderline,
-                                activeTab === "overblik" && styles.tabUnderlineActive,
+                                activeTab === "overview" && styles.tabUnderlineActive,
                             ]}
                         />
                     </TouchableOpacity>
 
                     <TouchableOpacity
                         style={styles.tabItem}
-                        onPress={() => setActiveTab("udgifter")}
+                        onPress={() => setActiveTab("expenses")}
                         accessibilityRole="button"
                         accessibilityLabel="Vis udgifter"
                     >
-                        <Text style={activeTab === "udgifter" ? styles.tabActive : styles.tabInactive}>
+                        <Text style={activeTab === "expenses" ? styles.tabActive : styles.tabInactive}>
                             UDGIFTER
                         </Text>
                         <View
                             style={[
                                 styles.tabUnderline,
-                                activeTab === "udgifter" && styles.tabUnderlineActive,
+                                activeTab === "expenses" && styles.tabUnderlineActive,
                             ]}
                         />
                     </TouchableOpacity>
                 </View>
 
-                {activeTab === "overblik" ? (
+                {activeTab === "overview" ? (
                     <>
                         {/* Cirkeldiagram med budgetbrug */}
                         <View style={styles.circleSection}>
-                            <HjulUdseende budget={vm.budget} />
+                            <WheelView budget={vm.budget} isOverBudget={isOverBudget} />
                         </View>
 
                         {/* Budget overskredet boks */}
@@ -292,7 +291,7 @@ export function BudgetOverview({ onResetAll }) {
                                                             accessibilityRole="button"
                                                             accessibilityLabel="Slet transaktion"
                                                         >
-                                                            <Text style={styles.transactionActionTextDelete}>🗑</Text>
+                                                            <Text style={styles.transactionActionTextDelete}>✕</Text>
                                                         </TouchableOpacity>
                                                     </View>
                                                 ) : null}
@@ -492,9 +491,12 @@ const styles = StyleSheet.create({
     listCard: {
         borderRadius: 16,
         borderWidth: 1,
-        borderColor: "#1E40AF",
+        borderColor: theme.colors.primary,
     },
     categoryListCard: {
+        borderWidth: 1,
+        borderColor: theme.colors.primary,
+        borderRadius: 16,
         marginTop: 2,
         paddingVertical: 6,
         marginBottom: 8,
@@ -513,6 +515,8 @@ const styles = StyleSheet.create({
         backgroundColor: theme.colors.surface,
         alignItems: "center",
         justifyContent: "center",
+        borderWidth: 1,
+        borderColor: theme.colors.primary,
     },
     categoryIconText: {
         fontSize: 16,
@@ -531,7 +535,7 @@ const styles = StyleSheet.create({
     budgetStatusText: {
         fontSize: 12,
         marginTop: 8,
-        color: "#374151",
+        color: theme.colors.textSecondary,
         textAlign: "center",
     },
     overBudgetBox: {
@@ -609,12 +613,12 @@ const styles = StyleSheet.create({
     // UI til "Seneste transaktioner"
     transactionCard: {
         marginTop: 2,
-        backgroundColor: theme.colors.background,
+        backgroundColor: theme.colors.primaryDisabled,
         borderRadius: 14,
         padding: 12,
         marginBottom: 16,
         borderWidth: 1,
-        borderColor: theme.colors.border,
+        borderColor: theme.colors.primary,
         maxHeight: 220, // låser højden så ScrollView kan rulle
     },
     transactionScroll: {
@@ -633,6 +637,8 @@ const styles = StyleSheet.create({
         backgroundColor: theme.colors.surface,
         alignItems: "center",
         justifyContent: "center",
+        borderWidth: 1,
+        borderColor: theme.colors.primary,
     },
     transactionIconText: {
         fontSize: 14,
@@ -690,13 +696,12 @@ const styles = StyleSheet.create({
         position: "absolute",
         left: 0,
         right: 0,
-        bottom: 20,
+        bottom: 0,
         paddingHorizontal: 16,
-        paddingBottom: 16,
-        paddingTop: 8,
-        backgroundColor: "#FFFFFF",
-        borderTopWidth: 1,
-        borderTopColor: "#E5E7EB",
+        paddingBottom: 30,
+        paddingTop: 15,
+        backgroundColor: theme.colors.background,
+
     },
     primaryButton: {
         alignItems: "center",
@@ -709,12 +714,6 @@ const styles = StyleSheet.create({
         fontWeight: "700",
     },
 });
-
-
-
-
-
-
 
 
 

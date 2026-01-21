@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import {
   calculateDisposableAmount,
   calculateTotals,
-} from "../../Model/rådighedsbeløb";
+} from "../../Model/disposableAmount";
 
 // Service-laget: henter og gemmer budgettet i AsyncStorage
 import { loadBudget, resetBudget, saveBudget } from "../../Services/storage";

@@ -76,7 +76,7 @@ export function AddVariableExpenseModal({
                         <View style={styles.headerRow}>
                             <View style={styles.headerText}>
                                 <AppText variant="h4" style={styles.title}>
-                                    Tilføj ny udgift
+                                    Tilføj ny variabel udgift
                                 </AppText>
                                 <AppText variant="p" style={styles.subtitle}>
                                     Udfyld felterne nedenfor og vælg en kategori.
@@ -91,10 +91,10 @@ export function AddVariableExpenseModal({
                                 <AppText style={styles.closeButtonText}>✕</AppText>
                             </Pressable>
                         </View>
-
+<View style={styles.insertcard}>
                         <View style={styles.section}>
                             <AppText variant="p" style={styles.sectionLabel}>
-                                Kategori
+                                Kategori:
                             </AppText>
 
                             <Pressable
@@ -102,6 +102,7 @@ export function AddVariableExpenseModal({
                                 style={({ pressed }) => [
                                     styles.dropdownTrigger,
                                     pressed && styles.dropdownTriggerPressed,
+                                    { borderColor: theme.colors.primary }
                                 ]}
                             >
                                 <AppText style={styles.dropdownText}>{category}</AppText>
@@ -145,19 +146,21 @@ export function AddVariableExpenseModal({
 
                         <View style={styles.section}>
                             <Input
-                                label="Beskrivelse"
+                                label="Beskrivelse:"
+                                style={{ borderColor: theme.colors.primary }}
                                 value={name}
                                 onChangeText={setName}
-                                placeholder="fx Morgenmad"
+                                placeholder="f.eks. Morgenmad"
                             />
                         </View>
 
                         <View style={styles.section}>
                             <Input
-                                label="Beløb (kr.)"
+                                label="Beløb (kr.):"
+                                style={{ borderColor: theme.colors.primary }}
                                 value={amount}
                                 onChangeText={setAmount}
-                                placeholder="fx 150"
+                                placeholder="f.eks. 150"
                                 keyboardType="numeric"
                             />
                         </View>
@@ -174,7 +177,7 @@ export function AddVariableExpenseModal({
                                 thumbColor="#FFFFFF"
                             />
                         </View>
-
+</View>
                         <View style={styles.actions}>
                             <Pressable
                                 onPress={onClose}
@@ -223,6 +226,13 @@ const styles = StyleSheet.create({
         shadowOffset: { width: 0, height: 12 },
         elevation: 10,
     },
+    insertcard: {
+        borderRadius: theme.radius.lg,
+        padding: theme.spacing.xl,
+        borderWidth: 1,
+        borderColor: theme.colors.primary,
+        gap: theme.spacing.md,
+    },
 
     headerRow: {
         flexDirection: "row",
@@ -248,7 +258,7 @@ const styles = StyleSheet.create({
         borderRadius: 18,
         alignItems: "center",
         justifyContent: "center",
-        backgroundColor: theme.colors.labelBg,
+        backgroundColor: theme.colors.background,
         borderWidth: 1,
         borderColor: theme.colors.border,
     },
@@ -257,7 +267,7 @@ const styles = StyleSheet.create({
         transform: [{ scale: 0.98 }],
     },
     closeButtonText: {
-        color: theme.colors.textSecondary,
+        color: theme.colors.textPrimary,
         fontWeight: "700",
         fontSize: 16,
         lineHeight: 18,
@@ -333,7 +343,7 @@ const styles = StyleSheet.create({
         borderRadius: theme.radius.md,
         backgroundColor: "#D5bbec",
         borderWidth: 1,
-        borderColor: theme.colors.border,
+        borderColor: theme.colors.luxury,
     },
     switchLabel: {
         color: theme.colors.textPrimary,

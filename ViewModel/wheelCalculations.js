@@ -92,7 +92,7 @@ export function calculateWheelMetrics(budget) {
 }
 
 // Hooket som loader budgettet fra storage og giver tal til UI.
-export function useHjulUdregninger() {
+export function useWheelCalculations() {
   const [budget, setBudget] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
