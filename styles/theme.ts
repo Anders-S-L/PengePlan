@@ -25,6 +25,7 @@ export const theme = {
     primary: "#3B82F6",         // Primære knapper (fx "Ny udgift")
     primaryPressed: "#2563EB",  // Hover / pressed state på knapper
     primaryDisabled: "#DBEAFE", // Disabled knapper (lys blå)
+    inputFill: "#E6F1FF",
 
     // --- Semantiske farver (betydning) ---
     success: "#39D52E",   // Penge tilbage / positive værdier
@@ -36,6 +37,7 @@ export const theme = {
     borderFocus: "#3B82F6",  // Border når input er i fokus
     borderError: "#FE0303",  // Border ved fejl
     boxBorder: "#1E40AF", // Border til blå bokse
+    inputCol: "#E6F1FF",
 
     // --- Semantiske flader ---
     infoBg: "#EFF6FF",

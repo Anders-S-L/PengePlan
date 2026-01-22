@@ -173,7 +173,8 @@ export default function OnboardingScreen({ onDone }: Probs) {
             <AppText>Beskrivelse:</AppText>
             <Input
               value={incomeName}
-                style={{ borderColor: theme.colors.primary }}
+                style={{ backgroundColor: theme.colors.inputFill,
+                    borderColor: theme.colors.inputCol }}
               onChangeText={setIncomeName}
               placeholder="f.eks. Løn"
             />
@@ -181,7 +182,8 @@ export default function OnboardingScreen({ onDone }: Probs) {
             <AppText style={styles.mtMd}>Beløb:</AppText>
             <Input
               value={incomeAmount}
-              style={{ borderColor: theme.colors.primary }}
+              style={{backgroundColor: theme.colors.inputFill,
+                    borderColor: theme.colors.inputCol }}
               onChangeText={(text) => setIncomeAmount(onlyNumbers(text))}
               keyboardType="number-pad"
               placeholder="f.eks. 20.000"
@@ -249,7 +251,8 @@ export default function OnboardingScreen({ onDone }: Probs) {
             <AppText>Beskrivelse:</AppText>
             <Input
               value={expenseName}
-                style={{ borderColor: theme.colors.primary }}
+                style={{ backgroundColor: theme.colors.inputFill,
+                    borderColor: theme.colors.inputCol }}
               onChangeText={setExpenseName}
               placeholder="f.eks. Husleje"
             />
@@ -257,7 +260,8 @@ export default function OnboardingScreen({ onDone }: Probs) {
             <AppText style={styles.mtMd}>Beløb:</AppText>
             <Input
               value={expenseAmount}
-                style={{ borderColor: theme.colors.primary }}
+                style={{ backgroundColor: theme.colors.inputFill,
+                    borderColor: theme.colors.inputCol }}
               onChangeText={(text) => setExpenseAmount(onlyNumbers(text))}
               keyboardType="number-pad"
               placeholder="f.eks. 8.000"

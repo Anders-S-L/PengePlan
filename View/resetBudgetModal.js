@@ -241,14 +241,15 @@ export function ResetBudgetModal({
                                             <View style={styles.editor}>
                                                 <Input
                                                     label="Beskrivelse:"
-                                                    style={{ borderColor: theme.colors.primary }}
+                                                    style={{ backgroundColor: theme.colors.inputFill, borderColor: theme.colors.inputCol }}
+
                                                     placeholder="f.eks. Løn"
                                                     value={entry.name ?? ""}
                                                     onChangeText={(value) => updateFixedIncome(index, "name", value)}
                                                 />
                                                 <Input
                                                     label="Beløb:"
-                                                    style={{ borderColor: theme.colors.primary }}
+                                                    style={{ backgroundColor: theme.colors.inputFill,  borderColor: theme.colors.inputCol }}
                                                     placeholder="f.eks. 15.000"
                                                     value={entry.amount ?? ""}
                                                     onChangeText={(value) => updateFixedIncome(index, "amount", value)}
@@ -318,14 +319,14 @@ export function ResetBudgetModal({
                                             <View style={styles.editor}>
                                                 <Input
                                                     label="Beskrivelse:"
-                                                    style={{ borderColor: theme.colors.primary }}
+                                                    style={{ backgroundColor: theme.colors.inputFill,  borderColor: theme.colors.inputCol }}
                                                     placeholder="f.eks. Husleje "
                                                     value={entry.name ?? ""}
                                                     onChangeText={(value) => updateFixedExpense(index, "name", value)}
                                                 />
                                                 <Input
                                                     label="Beløb"
-                                                    style={{ borderColor: theme.colors.primary }}
+                                                    style={{ backgroundColor: theme.colors.inputFill,  borderColor: theme.colors.inputCol }}
                                                     placeholder="f.eks. 8.000"
                                                     value={entry.amount ?? ""}
                                                     onChangeText={(value) => updateFixedExpense(index, "amount", value)}

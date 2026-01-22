@@ -140,7 +140,7 @@ export function BudgetOverview({ onResetAll }) {
                             <Text
                                 style={[
                                     styles.balanceAmount,
-                                    isOverBudget ? styles.amountNegative : styles.amountPositive,
+                                    isOverBudget ? styles.amountNegative : styles.amountPositive, 
                                 ]}
                             >
                                 {disposableFormatted}
@@ -250,6 +250,7 @@ export function BudgetOverview({ onResetAll }) {
                                         const dateLabel = formatDate(expense.createdAt);
                                         const icon = getCategoryEmoji(expense.category);
                                         const isEditable = Boolean(expense.createdAt);
+                                        const isLuxury = Boolean(expense.isLuxury);
                                         return (
                                             <View
                                                 key={`${expense.name}-${expense.createdAt ?? index}`}
@@ -260,11 +261,23 @@ export function BudgetOverview({ onResetAll }) {
                                                 </View>
                                                 <View style={styles.transactionInfo}>
                                                     <Text style={styles.transactionTitle}>{expense.name}</Text>
-                                                    <Text style={styles.transactionMeta}>
-                                                        {expense.category}{dateLabel ? ` - ${dateLabel}` : ""}
+                                                    <Text
+                                                        style={[
+                                                            styles.transactionMeta,
+                                                            isLuxury && styles.transactionMetaLuxury,
+                                                        ]}
+                                                    >
+                                                        {expense.category}
+                                                        {dateLabel ? ` - ${dateLabel}` : ""}
+                                                        {isLuxury ? "\nLuksus" : ""}
                                                     </Text>
                                                 </View>
-                                                <Text style={styles.transactionAmount}>
+                                                <Text
+                                                    style={[
+                                                        styles.transactionAmount,
+                                                        isLuxury && styles.transactionAmountLuxury,
+                                                    ]}
+                                                >
                                                     -{formatAmount(expense.amount)}
                                                 </Text>
                                                 {/* Det her er vores knapper til redigering og sletning af transaktioner. OBS: Skal ændres til rigtige knapper når det er lavet.*/}
@@ -658,11 +671,17 @@ const styles = StyleSheet.create({
         color: theme.colors.textSecondary,
         marginTop: 2,
     },
+    transactionMetaLuxury: {
+        color: theme.colors.luxury,
+    },
     transactionAmount: {
         fontSize: 15,
         fontWeight: "700",
         color: theme.colors.textPrimary,
         marginRight: 8,
+    },
+    transactionAmountLuxury: {
+        color: theme.colors.luxury,
     },
     transactionActions: {
         flexDirection: "row",
@@ -714,6 +733,3 @@ const styles = StyleSheet.create({
         fontWeight: "700",
     },
 });
-
-
-

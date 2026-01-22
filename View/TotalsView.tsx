@@ -24,6 +24,7 @@ export function TotalsView({ totals }: Props) {
                 const isPositive = normalizedValue > 0;
                 const isNegative = normalizedValue < 0;
                 const isTotal = item.name === "Total brugt";
+                const isLuxury = item.name === "Luksus udgifter";
 
                 return (
                     <View
@@ -37,6 +38,7 @@ export function TotalsView({ totals }: Props) {
                                 styles.value,
                                 isPositive && styles.positive,
                                 isNegative && styles.negative,
+                                isLuxury && styles.luxury,
                             ]}
                         >
                             {isPositive ? "+" : ""}
@@ -75,5 +77,8 @@ const styles = StyleSheet.create({
     },
     negative: {
         color: theme.colors.danger,
+    },
+    luxury: {
+        color: theme.colors.luxury,
     },
 });
