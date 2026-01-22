@@ -325,7 +325,7 @@ export function ResetBudgetModal({
                                                     onChangeText={(value) => updateFixedExpense(index, "name", value)}
                                                 />
                                                 <Input
-                                                    label="Beløb"
+                                                    label="Beløb:"
                                                     style={{ backgroundColor: theme.colors.inputFill,  borderColor: theme.colors.inputCol }}
                                                     placeholder="f.eks. 8.000"
                                                     value={entry.amount ?? ""}
